@@ -3,8 +3,9 @@ import requests
 import os
 import logging
 import re
+from datetime import datetime
 
-# إعداد التسجيل (Logging) لفهم ما يحدث في السيرفر
+# إعداد التسجيل
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -13,16 +14,14 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# --- إعدادات واتساب (تم دمج بياناتك) ---
-# ملاحظة: استخدام os.environ.get يجعل الكود آمناً ويعمل على Render
+# --- إعدادات واتساب ---
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "moujib_token_secret")
 ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN", "EAAfo3utE4ioBQJ72Y5gkM29CnuSvLVlh3WZBvfKVt5rLLpt8TS15QTW36mLUSZC5Gzg2ZCu7sMDnBHMr5FuDwHuYr9WfASsZAlYIpG06F7pj4tV6e6XdknSMHI6D0YcyuoZB6ptQ4j1prkahIirpDTDPV3ecDWMb3zrwxBeiRgfGiQrfxT2A1CZAZCNZBSZCcAXuk7AZDZD")
 PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "889973017535202")
+SELLER_PHONE_NUMBER = "212770890339"  # رقم البائع
 VERSION = "v19.0"
 
 class WhatsAppBot:
-    """فئة لإدارة منطق البوت والردود"""
-    
     def __init__(self):
         self.responses = {
             'greeting': {
@@ -49,23 +48,29 @@ class WhatsAppBot:
                 'ar': "🆘 *كيف يمكنني مساعدتك؟*\n\n📋 1 - عرض منتجات الرجال\n📋 2 - عرض منتجات النساء\n💰 3 - معلومات الأسعار\n🚚 4 - معلومات التوصيل\n\nأو اكتب رسالتك مباشرة!",
                 'fr': "🆘 *Comment puis-je vous aider?*\n\n📋 1 - Voir produits Homme\n📋 2 - Voir produits Femme\n💰 3 - Informations prix\n🚚 4 - Informations livraison\n\nOu écrivez votre message directement!"
             },
+            'contact_info_received': {
+                'ar': "✅ تم استلام معلوماتك بنجاح!\n\n📞 سيتصل بك فريقنا خلال 30 دقيقة للتأكيد النهائي للطلب.\n\nشكراً لثقتك بنا! 🤝",
+                'fr': "✅ Informations reçues avec succès!\n\n📞 Notre équipe vous contactera dans 30 minutes pour confirmation finale.\n\nMerci de votre confiance! 🤝"
+            },
             'unknown': {
                 'ar': "🤔 لم أفهم سؤالك!\n\nاكتب 'مساعدة' للحصول على قائمة الخيارات المتاحة\nأو اكتب سؤالك بطريقة أخرى!",
                 'fr': "🤔 Je n'ai pas compris!\n\nTapez 'aide' pour voir les options disponibles\nOu reformulez votre question!"
             }
         }
         
-        # منتجات إضافية
         self.products = {
-            'a': {'ar': 'سروال جينز', 'fr': 'Jean', 'price': 200, 'category': 'men'},
-            'b': {'ar': 'تيشيرت قطني', 'fr': 'T-shirt', 'price': 100, 'category': 'men'},
-            'c': {'ar': 'جاكيت شتوي', 'fr': 'Veste', 'price': 350, 'category': 'men'},
-            'd': {'ar': 'أحذية رياضية', 'fr': 'Chaussures', 'price': 280, 'category': 'men'},
-            'e': {'ar': 'فستان صيفي', 'fr': 'Robe été', 'price': 250, 'category': 'women'},
-            'f': {'ar': 'بلوزة حرير', 'fr': 'Chemisier soie', 'price': 180, 'category': 'women'},
-            'g': {'ar': 'شورت', 'fr': 'Short', 'price': 120, 'category': 'women'},
-            'h': {'ar': 'كعب عالي', 'fr': 'Talons', 'price': 220, 'category': 'women'}
+            'a': {'ar': 'سروال جينز', 'fr': 'Jean', 'price': 200},
+            'b': {'ar': 'تيشيرت قطني', 'fr': 'T-shirt', 'price': 100},
+            'c': {'ar': 'جاكيت شتوي', 'fr': 'Veste', 'price': 350},
+            'd': {'ar': 'أحذية رياضية', 'fr': 'Chaussures', 'price': 280},
+            'e': {'ar': 'فستان صيفي', 'fr': 'Robe été', 'price': 250},
+            'f': {'ar': 'بلوزة حرير', 'fr': 'Chemisier soie', 'price': 180},
+            'g': {'ar': 'شورت', 'fr': 'Short', 'price': 120},
+            'h': {'ar': 'كعب عالي', 'fr': 'Talons', 'price': 220}
         }
+        
+        # لتتبع حالة المستخدمين
+        self.user_sessions = {}
     
     def detect_language(self, text: str) -> str:
         """اكتشاف لغة النص"""
@@ -74,12 +79,12 @@ class WhatsAppBot:
             return 'ar'
         return 'fr'
     
-    def process_message(self, message: str) -> str:
+    def process_message(self, message: str, sender_phone: str) -> str:
         """معالجة الرسالة وإرجاع الرد المناسب"""
         message = message.lower().strip()
         lang = self.detect_language(message)
         
-        logger.info(f"معالجة الرسالة: '{message}' باللغة: {lang}")
+        logger.info(f"معالجة رسالة من {sender_phone}: '{message}'")
         
         # الترحيب والمساعدة
         if any(word in message for word in ['salam', 'slm', 'سلام', 'bonjour', 'hello', 'hi', 'مرحبا', 'مساء', 'صباح']):
@@ -104,30 +109,52 @@ class WhatsAppBot:
             return self.responses['delivery'][lang]
         
         # الطلبات
-        elif any(char in message.lower() for char in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
-            return self.process_order(message, lang)
+        elif any(char in message for char in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
+            return self.process_order(message, lang, sender_phone)
+        
+        # --- الذكاء الجديد: اكتشاف معلومات الزبون ---
+        # إذا كانت الرسالة طويلة (أكثر من 10 كلمات) أو تحتوي على كلمات تشير إلى معلومات شخصية
+        elif self.is_contact_info(message):
+            return self.process_contact_info(message, lang, sender_phone)
         
         # شكر
         elif any(word in message for word in ['شكر', 'merci', 'thanks', 'thank']):
             if lang == 'ar':
-                return "العفو! 😊\n\nهل يمكنني مساعدتك بأي شيء آخر؟"
+                return "العفو! 😊\nهل يمكنني مساعدتك بأي شيء آخر؟"
             else:
-                return "De rien! 😊\n\nPuis-je vous aider avec autre chose?"
+                return "De rien! 😊\nPuis-je vous aider avec autre chose?"
         
         # غير معروف
         else:
             return self.responses['unknown'][lang]
     
-    def process_order(self, message: str, lang: str) -> str:
+    def is_contact_info(self, message: str) -> bool:
+        """التعرف على المعلومات الشخصية في الرسالة"""
+        contact_keywords = [
+            'اسم', 'عائلة', 'شارع', 'حي', 'مدينة', 'عنوان', 'هاتف', 'رقم', 
+            'name', 'rue', 'avenue', 'ville', 'adresse', 'téléphone', 'phone'
+        ]
+        
+        # إذا كانت الرسالة طويلة (أكثر من 10 كلمات) أو تحتوي على كلمات مفتاحية
+        words = message.split()
+        if len(words) > 10:
+            return True
+        
+        for keyword in contact_keywords:
+            if keyword in message.lower():
+                return True
+        
+        return False
+    
+    def process_order(self, message: str, lang: str, sender_phone: str) -> str:
         """معالجة طلب المنتج"""
         try:
-            # استخراج الحرف والكمية من الرسالة
-            message_lower = message.lower()
+            parts = message.split()
             product_code = None
             
             # البحث عن الحرف في الرسالة
             for char in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
-                if char in message_lower:
+                if char in message.lower():
                     product_code = char
                     break
             
@@ -144,41 +171,92 @@ class WhatsAppBot:
             product = self.products[product_code]
             total = product['price'] * quantity
             
+            # حفظ معلومات الطلب مؤقتاً
+            self.user_sessions[sender_phone] = {
+                'product': product,
+                'quantity': quantity,
+                'total': total,
+                'timestamp': datetime.now()
+            }
+            
             if lang == 'ar':
-                return f"""✅ تم تسجيل طلبك!
+                return f"""✅ تم تسجيل اختيارك!
 
 📦 المنتج: {product['ar']}
 🔢 الكمية: {quantity}
-💰 السعر للقطعة: {product['price']} درهم
 💰 الإجمالي: {total} درهم
 
-لإكمال الطلب، نرجو إرسال:
+⬇️ *لإكمال الطلب، أرسل لنا الآن:*
 👤 الاسم الكامل
-📍 العنوان الكامل
-📞 رقم الهاتف
+📍 العنوان المفصل (الشارع، الحي، المدينة)
+📞 رقم الهاتف للتواصل
 
-شكراً لثقتك بنا! 🤝"""
+سنقوم بالاتصال بك للتأكيد النهائي! 📞"""
             else:
-                return f"""✅ Commande enregistrée!
+                return f"""✅ Choix enregistré!
 
 📦 Produit: {product['fr']}
 🔢 Quantité: {quantity}
-💰 Prix unitaire: {product['price']} DH
 💰 Total: {total} DH
 
-Pour compléter la commande, veuillez envoyer:
+⬇️ *Pour compléter la commande, envoyez-nous:*
 👤 Nom complet
-📍 Adresse complète
+📍 Adresse détaillée (Rue, Quartier, Ville)
 📞 Numéro de téléphone
 
-Merci de votre confiance! 🤝"""
+Nous vous contacterons pour confirmation finale! 📞"""
         
         except Exception as e:
             logger.error(f"خطأ في معالجة الطلب: {str(e)}")
-            if lang == 'ar':
-                return "📝 لطلب منتج، اكتب:\nالحرف + الكمية\nمثال: A 2\n\nالحروف المتاحة: A, B, C, D, E, F, G, H"
+            return self.responses['unknown'][lang]
+    
+    def process_contact_info(self, message: str, lang: str, sender_phone: str) -> str:
+        """معالجة معلومات الاتصال وإرسال إشعار للبائع"""
+        try:
+            # 1. إرسال إشعار مفصل للبائع
+            order_info = self.user_sessions.get(sender_phone, {})
+            
+            notify_text = f"""🚨 *طلبية جديدة!*
+
+📞 العميل: {sender_phone}
+📝 المعلومات:
+{message}
+
+"""
+            
+            if order_info:
+                product = order_info.get('product', {})
+                quantity = order_info.get('quantity', 1)
+                total = order_info.get('total', 0)
+                
+                notify_text += f"""🛒 تفاصيل الطلب:
+📦 المنتج: {product.get('ar', 'غير محدد')}
+🔢 الكمية: {quantity}
+💰 الإجمالي: {total} درهم
+
+⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
+
+            # إرسال الإشعار للبائع
+            seller_success = send_whatsapp_message(SELLER_PHONE_NUMBER, notify_text)
+            
+            if seller_success:
+                logger.info(f"تم إرسال إشعار الطلبية للبائع من العميل {sender_phone}")
             else:
-                return "📝 Pour commander, écrivez:\nLettre + Quantité\nExemple: A 2\n\nLettres disponibles: A, B, C, D, E, F, G, H"
+                logger.error(f"فشل إرسال إشعار الطلبية للبائع من العميل {sender_phone}")
+            
+            # 2. تنظيف الجلسة
+            if sender_phone in self.user_sessions:
+                del self.user_sessions[sender_phone]
+            
+            # 3. الرد على الزبون
+            return self.responses['contact_info_received'][lang]
+            
+        except Exception as e:
+            logger.error(f"خطأ في معالجة معلومات الاتصال: {str(e)}")
+            if lang == 'ar':
+                return "حدث خطأ في معالجة معلوماتك. يرجى المحاولة مرة أخرى."
+            else:
+                return "Erreur de traitement. Veuillez réessayer."
 
 # تهيئة البوت
 bot = WhatsAppBot()
@@ -227,7 +305,7 @@ def verify_webhook():
     token = request.args.get('hub.verify_token')
     challenge = request.args.get('hub.challenge')
 
-    logger.info(f"طلب تحقق: mode={mode}, token={token}")
+    logger.info(f"طلب تحقق: mode={mode}")
 
     if mode and token:
         if mode == 'subscribe' and token == VERIFY_TOKEN:
@@ -249,7 +327,7 @@ def webhook():
             logger.warning("طلب POST بدون بيانات")
             return 'OK', 200
         
-        logger.info(f"بيانات مستلمة: {data}")
+        logger.info(f"بيانات مستلمة من الويب هوك")
         
         # استخراج الرسالة
         entry = data.get('entry', [{}])[0]
@@ -270,7 +348,7 @@ def webhook():
             logger.info(f"رسالة من {phone_number}: {message_body}")
             
             # معالجة الرسالة والحصول على الرد
-            reply_text = bot.process_message(message_body)
+            reply_text = bot.process_message(message_body, phone_number)
             
             # إرسال الرد
             success = send_whatsapp_message(phone_number, reply_text)
@@ -291,7 +369,9 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'service': 'Moujib WhatsApp Bot',
-        'version': '2.0'
+        'version': '2.0',
+        'active_sessions': len(bot.user_sessions),
+        'timestamp': datetime.now().isoformat()
     }), 200
 
 @app.route('/', methods=['GET'])
@@ -307,7 +387,6 @@ def home():
     }), 200
 
 if __name__ == '__main__':
-    # الإصلاح السحري لـ Render
     port = int(os.environ.get("PORT", 5000))
     debug = os.environ.get("DEBUG", "False").lower() == "true"
     
