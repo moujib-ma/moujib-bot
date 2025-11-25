@@ -25,36 +25,142 @@ class WhatsAppBot:
     def __init__(self):
         self.responses = {
             'greeting': {
-                'ar': "مرحباً بك في مُجيب! 👋\n\n🎯 *خدماتنا:*\n\n👕 1. كوليكسيون الرجال\n👗 2. كوليكسيون النساء\n💰 3. استعلام عن السعر\n📞 4. التوصيل والدفع\n\nاختر رقم أو اكتب سؤالك!",
-                'fr': "Bienvenue chez Moujib! 👋\n\n🎯 *Nos services:*\n\n👕 1. Collection Homme\n👗 2. Collection Femme\n💰 3. Demande de prix\n📞 4. Livraison et Paiement\n\nChoisissez un numéro ou écrivez votre question!"
+                'ar': """مرحباً بك في مُجيب! 👋
+
+🎯 *خدماتنا:*
+
+👕 1. كوليكسيون الرجال
+👗 2. كوليكسيون النساء  
+💰 3. استعلام عن السعر
+📞 4. التوصيل والدفع
+🆘 5. المساعدة
+
+اختر رقم أو اكتب سؤالك!""",
+                'fr': """Bienvenue chez Moujib! 👋
+
+🎯 *Nos services:*
+
+👕 1. Collection Homme
+👗 2. Collection Femme
+💰 3. Demande de prix
+📞 4. Livraison et Paiement
+🆘 5. Aide
+
+Choisissez un numéro ou écrivez votre question!"""
             },
             'men_collection': {
-                'ar': "🔥 *كوليكسيون الرجال:*\n\n👖 A. سروال جينز - 200 درهم\n👕 B. تيشيرت قطني - 100 درهم\n🧥 C. جاكيت شتوي - 350 درهم\n👟 D. أحذية رياضية - 280 درهم\n\nلطلب منتج، اكتب الحرف + الكمية (مثال: A 2)",
-                'fr': "🔥 *Collection Homme:*\n\n👖 A. Jean - 200 DH\n👕 B. T-shirt coton - 100 DH\n🧥 C. Veste d'hiver - 350 DH\n👟 D. Chaussures sport - 280 DH\n\nPour commander, écrivez la lettre + quantité (ex: A 2)"
+                'ar': """🔥 *كوليكسيون الرجال:*
+
+👖 A. سروال جينز - 200 درهم
+👕 B. تيشيرت قطني - 100 درهم
+🧥 C. جاكيت شتوي - 350 درهم
+👟 D. أحذية رياضية - 280 درهم
+
+لطلب منتج، اكتب الحرف + الكمية (مثال: A 2)""",
+                'fr': """🔥 *Collection Homme:*
+
+👖 A. Jean - 200 DH
+👕 B. T-shirt coton - 100 DH
+🧥 C. Veste d'hiver - 350 DH
+👟 D. Chaussures sport - 280 DH
+
+Pour commander, écrivez la lettre + quantité (ex: A 2)"""
             },
             'women_collection': {
-                'ar': "💫 *كوليكسيون النساء:*\n\n👗 A. فستان صيفي - 250 درهم\n👚 B. بلوزة حرير - 180 درهم\n🩳 C. شورت - 120 درهم\n👠 D. كعب عالي - 220 درهم\n\nلطلب منتج، اكتب الحرف + الكمية",
-                'fr': "💫 *Collection Femme:*\n\n👗 A. Robe d'été - 250 DH\n👚 B. Chemisier soie - 180 DH\n🩳 C. Short - 120 DH\n👠 D. Talons - 220 DH\n\nPour commander, écrivez la lettre + quantité"
+                'ar': """💫 *كوليكسيون النساء:*
+
+👗 A. فستان صيفي - 250 درهم
+👚 B. بلوزة حرير - 180 درهم
+🩳 C. شورت - 120 درهم
+👠 D. كعب عالي - 220 درهم
+
+لطلب منتج، اكتب الحرف + الكمية""",
+                'fr': """💫 *Collection Femme:*
+
+👗 A. Robe d'été - 250 DH
+👚 B. Chemisier soie - 180 DH
+🩳 C. Short - 120 DH
+👠 D. Talons - 220 DH
+
+Pour commander, écrivez la lettre + quantité"""
             },
             'pricing': {
-                'ar': "💰 *معلومات الأسعار:*\n\n• الأسعار تبدأ من 100 درهم\n• خصم 10% للطلبات فوق 500 درهم\n• التوصيل مجاني لطلبات فوق 300 درهم\n• الدفع نقداً عند الاستلام أو تحويل بنكي\n\nللاستفسار عن منتج معين، اكتب اسمه!",
-                'fr': "💰 *Informations Prix:*\n\n• Prix à partir de 100 DH\n• Remise 10% pour commandes > 500 DH\n• Livraison gratuite > 300 DH\n• Paiement cash à la livraison ou virement\n\nPour un produit spécifique, écrivez son nom!"
+                'ar': """💰 *معلومات الأسعار:*
+
+• الأسعار تبدأ من 100 درهم
+• خصم 10% للطلبات فوق 500 درهم
+• التوصيل مجاني لطلبات فوق 300 درهم
+• الدفع نقداً عند الاستلام أو تحويل بنكي
+
+للاستفسار عن منتج معين، اكتب اسمه!""",
+                'fr': """💰 *Informations Prix:*
+
+• Prix à partir de 100 DH
+• Remise 10% pour commandes > 500 DH
+• Livraison gratuite > 300 DH
+• Paiement cash à la livraison ou virement
+
+Pour un produit spécifique, écrivez son nom!"""
             },
             'delivery': {
-                'ar': "🚚 *معلومات التوصيل:*\n\n• التوصيل خلال 24-48 ساعة\n• مجاني للدار البيضاء والرباط\n• 20 درهم للمدن الأخرى\n• نعمل من الإثنين إلى السبت\n\nللتتبع أو الاستفسار، راسلنا!",
-                'fr': "🚚 *Informations Livraison:*\n\n• Livraison 24-48h\n• Gratuite pour Casablanca et Rabat\n• 20 DH autres villes\n• Lundi à Samedi\n\nPour suivi ou questions, contactez-nous!"
+                'ar': """🚚 *معلومات التوصيل:*
+
+• التوصيل خلال 24-48 ساعة
+• مجاني للدار البيضاء والرباط
+• 20 درهم للمدن الأخرى
+• نعمل من الإثنين إلى السبت
+
+للتتبع أو الاستفسار، راسلنا!""",
+                'fr': """🚚 *Informations Livraison:*
+
+• Livraison 24-48h
+• Gratuite pour Casablanca et Rabat
+• 20 DH autres villes
+• Lundi à Samedi
+
+Pour suivi ou questions, contactez-nous!"""
             },
             'help': {
-                'ar': "🆘 *كيف يمكنني مساعدتك؟*\n\n📋 1 - عرض منتجات الرجال\n📋 2 - عرض منتجات النساء\n💰 3 - معلومات الأسعار\n🚚 4 - معلومات التوصيل\n\nأو اكتب رسالتك مباشرة!",
-                'fr': "🆘 *Comment puis-je vous aider?*\n\n📋 1 - Voir produits Homme\n📋 2 - Voir produits Femme\n💰 3 - Informations prix\n🚚 4 - Informations livraison\n\nOu écrivez votre message directement!"
+                'ar': """🆘 *كيف يمكنني مساعدتك؟*
+
+📋 1 - عرض منتجات الرجال
+📋 2 - عرض منتجات النساء  
+💰 3 - معلومات الأسعار
+🚚 4 - معلومات التوصيل
+🏠 5 - العودة للرئيسية
+
+أو اكتب رسالتك مباشرة!""",
+                'fr': """🆘 *Comment puis-je vous aider?*
+
+📋 1 - Voir produits Homme
+📋 2 - Voir produits Femme
+💰 3 - Informations prix
+🚚 4 - Informations livraison
+🏠 5 - Retour accueil
+
+Ou écrivez votre message directement!"""
             },
             'contact_info_received': {
-                'ar': "✅ تم استلام معلوماتك بنجاح!\n\n📞 سيتصل بك فريقنا خلال 30 دقيقة للتأكيد النهائي للطلب.\n\nشكراً لثقتك بنا! 🤝",
-                'fr': "✅ Informations reçues avec succès!\n\n📞 Notre équipe vous contactera dans 30 minutes pour confirmation finale.\n\nMerci de votre confiance! 🤝"
+                'ar': """✅ تم استلام معلوماتك بنجاح!
+
+📞 سيتصل بك فريقنا خلال 30 دقيقة للتأكيد النهائي للطلب.
+
+شكراً لثقتك بنا! 🤝""",
+                'fr': """✅ Informations reçues avec succès!
+
+📞 Notre équipe vous contactera dans 30 minutes pour confirmation finale.
+
+Merci de votre confiance! 🤝"""
             },
             'unknown': {
-                'ar': "🤔 لم أفهم سؤالك!\n\nاكتب 'مساعدة' للحصول على قائمة الخيارات المتاحة\nأو اكتب سؤالك بطريقة أخرى!",
-                'fr': "🤔 Je n'ai pas compris!\n\nTapez 'aide' pour voir les options disponibles\nOu reformulez votre question!"
+                'ar': """🤔 لم أفهم سؤالك!
+
+اكتب 'مساعدة' للحصول على قائمة الخيارات المتاحة
+أو اكتب سؤالك بطريقة أخرى!""",
+                'fr': """🤔 Je n'ai pas compris!
+
+Tapez 'aide' pour voir les options disponibles
+Ou reformulez votre question!"""
             }
         }
         
@@ -85,9 +191,8 @@ class WhatsAppBot:
         lang = self.detect_language(message)
         
         logger.info(f"🔍 معالجة رسالة من {sender_phone}: '{message}'")
-        logger.info(f"📊 الجلسات النشطة: {list(self.user_sessions.keys())}")
         
-        # 🔥 🔥 🔥 الأولوية: إذا كان المستخدم لديه جلسة نشطة، معالجة كمعلومات اتصال 🔥 🔥 🔥
+        # 🔥 الأولوية: إذا كان المستخدم لديه جلسة نشطة، معالجة كمعلومات اتصال
         if sender_phone in self.user_sessions:
             logger.info(f"🎯 المستخدم {sender_phone} لديه جلسة نشطة - معالجة كمعلومات اتصال")
             return self.process_contact_info(message, lang, sender_phone)
@@ -96,7 +201,7 @@ class WhatsAppBot:
         if any(word in message_lower for word in ['salam', 'slm', 'سلام', 'bonjour', 'hello', 'hi', 'مرحبا', 'مساء', 'صباح']):
             return self.responses['greeting'][lang]
         
-        elif any(word in message_lower for word in ['مساعدة', 'aide', 'help', 'خيارات']):
+        elif any(word in message_lower for word in ['مساعدة', 'aide', 'help', 'خيارات', '5']):
             return self.responses['help'][lang]
         
         # القوائم
@@ -124,6 +229,10 @@ class WhatsAppBot:
                 return "العفو! 😊\nهل يمكنني مساعدتك بأي شيء آخر؟"
             else:
                 return "De rien! 😊\nPuis-je vous aider avec autre chose?"
+        
+        # العودة للرئيسية
+        elif any(word in message_lower for word in ['رئيسية', 'accueil', 'home', 'main', 'بداية']):
+            return self.responses['greeting'][lang]
         
         # غير معروف
         else:
@@ -155,7 +264,7 @@ class WhatsAppBot:
             product = self.products[product_code]
             total = product['price'] * quantity
             
-            # 🔥 حفظ معلومات الطلب مؤقتاً - هذا مهم للإشعار!
+            # 🔥 حفظ معلومات الطلب مؤقتاً
             self.user_sessions[sender_phone] = {
                 'product': product,
                 'quantity': quantity,
@@ -165,8 +274,6 @@ class WhatsAppBot:
             }
             
             logger.info(f"✅ تم حفظ طلب من {sender_phone}: {product['ar']} x {quantity} = {total} درهم")
-            logger.info(f"🔄 الآن في انتظار معلومات الاتصال من {sender_phone}")
-            logger.info(f"📋 الجلسات الحالية: {list(self.user_sessions.keys())}")
             
             if lang == 'ar':
                 return f"""✅ تم تسجيل اختيارك!
@@ -227,27 +334,18 @@ Nous vous contacterons pour confirmation finale! 📞"""
 🔢 الكمية: {quantity}
 💰 الإجمالي: {total} درهم
 
-⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
+⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+🔗 رابط الرد: https://wa.me/{sender_phone}"""
             
             # 3. إرسال الإشعار للبائع
             logger.info(f"🔄 محاولة إرسال إشعار للبائع على الرقم: {SELLER_PHONE_NUMBER}")
-            logger.info(f"📤 محتوى الإشعار: {notify_text}")
-            
             seller_success = send_whatsapp_message(SELLER_PHONE_NUMBER, notify_text)
             
             if seller_success:
                 logger.info(f"🎉 تم إرسال إشعار الطلبية بنجاح للبائع من العميل {sender_phone}")
-                
-                # إرسال تأكيد إضافي للبائع
-                confirm_text = f"✅ تم استلام طلبية جديدة من {sender_phone} - الرجاء التواصل مع العميل خلال 30 دقيقة"
-                send_whatsapp_message(SELLER_PHONE_NUMBER, confirm_text)
-                
             else:
                 logger.error(f"❌ فشل إرسال إشعار الطلبية للبائع من العميل {sender_phone}")
-                
-                # محاولة بديلة: إرسال رسالة مختصرة
-                short_notify = f"🚨 طلبية جديدة من {sender_phone} - المنتج: {product.get('ar', 'غير معروف')} - {total} درهم"
-                send_whatsapp_message(SELLER_PHONE_NUMBER, short_notify)
             
             # 4. تنظيف الجلسة بعد إرسال الإشعار
             if sender_phone in self.user_sessions:
