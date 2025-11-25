@@ -18,7 +18,7 @@ app = Flask(__name__)
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "moujib_token_secret")
 ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN", "EAAfo3utE4ioBQJ72Y5gkM29CnuSvLVlh3WZBvfKVt5rLLpt8TS15QTW36mLUSZC5Gzg2ZCu7sMDnBHMr5FuDwHuYr9WfASsZAlYIpG06F7pj4tV6e6XdknSMHI6D0YcyuoZB6ptQ4j1prkahIirpDTDPV3ecDWMb3zrwxBeiRgfGiQrfxT2A1CZAZCNZBSZCcAXuk7AZDZD")
 PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "889973017535202")
-SELLER_PHONE_NUMBER = "212770890339"  # رقمك كتاجر
+SELLER_PHONE_NUMBER = "212770890339"
 VERSION = "v19.0"
 
 class WhatsAppBot:
@@ -86,6 +86,11 @@ class WhatsAppBot:
         
         logger.info(f"معالجة رسالة من {sender_phone}: '{message}'")
         
+        # إذا كان المستخدم لديه جلسة نشطة، اعتبر أي رسالة معلومات اتصال
+        if sender_phone in self.user_sessions:
+            logger.info(f"المستخدم {sender_phone} لديه جلسة نشطة - معالجة كمعلومات اتصال")
+            return self.process_contact_info(message, lang, sender_phone)
+        
         # الترحيب والمساعدة
         if any(word in message for word in ['salam', 'slm', 'سلام', 'bonjour', 'hello', 'hi', 'مرحبا', 'مساء', 'صباح']):
             return self.responses['greeting'][lang]
@@ -108,14 +113,9 @@ class WhatsAppBot:
         elif any(word in message for word in ['4', 'توصيل', 'livraison', 'delivery', 'شحون', 'وصل']):
             return self.responses['delivery'][lang]
         
-        # الطلبات - هنا المشكلة كانت!
+        # الطلبات
         elif any(char in message for char in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
             return self.process_order(message, lang, sender_phone)
-        
-        # --- الذكاء الجديد: اكتشاف معلومات الزبون ---
-        # إذا كانت الرسالة تحتوي على معلومات اتصال
-        elif self.is_contact_info(message) or sender_phone in self.user_sessions:
-            return self.process_contact_info(message, lang, sender_phone)
         
         # شكر
         elif any(word in message for word in ['شكر', 'merci', 'thanks', 'thank']):
@@ -133,13 +133,20 @@ class WhatsAppBot:
         contact_keywords = [
             'اسم', 'عائلة', 'شارع', 'حي', 'مدينة', 'عنوان', 'هاتف', 'رقم', 
             'name', 'rue', 'avenue', 'ville', 'adresse', 'téléphone', 'phone',
-            'الدار البيضاء', 'casablanca', 'الرباط', 'rabat', 'مراكش', 'marrakech'
+            'الدار البيضاء', 'casablanca', 'الرباط', 'rabat', 'مراكش', 'marrakech',
+            'فاس', 'fes', 'طنجة', 'tanger', 'مكناس', 'meknes', 'أكادير', 'agadir',
+            '068', '06', '07', '05', '+212', '212'
         ]
         
-        # إذا كانت الرسالة تحتوي على كلمات مفتاحية
+        # إذا كانت الرسالة تحتوي على كلمات مفتاحية أو أرقام هاتف
         for keyword in contact_keywords:
             if keyword in message.lower():
                 return True
+        
+        # إذا كانت الرسالة تحتوي على نمط رقم هاتف مغربي
+        phone_pattern = re.compile(r'(\+212|0)([5-7]\d{8})')
+        if phone_pattern.search(message):
+            return True
         
         return False
     
@@ -173,10 +180,12 @@ class WhatsAppBot:
                 'product': product,
                 'quantity': quantity,
                 'total': total,
-                'timestamp': datetime.now()
+                'timestamp': datetime.now(),
+                'waiting_for_contact': True  # علامة أننا ننتج معلومات الاتصال
             }
             
-            logger.info(f"تم حفظ طلب من {sender_phone}: {product['ar']} x {quantity} = {total} درهم")
+            logger.info(f"✅ تم حفظ طلب من {sender_phone}: {product['ar']} x {quantity} = {total} درهم")
+            logger.info(f"🔄 الآن في انتظار معلومات الاتصال من {sender_phone}")
             
             if lang == 'ar':
                 return f"""✅ تم تسجيل اختيارك!
@@ -230,7 +239,7 @@ Nous vous contacterons pour confirmation finale! 📞"""
                 total = order_info.get('total', 0)
                 
                 notify_text += f"""🛒 *تفاصيل الطلب:*
-📦 المنتج: {product.get('ar', 'غير محدد')}
+📦 المنتج: {product.get('ar', 'غير محدد')} / {product.get('fr', 'N/A')}
 🔢 الكمية: {quantity}
 💰 الإجمالي: {total} درهم
 
@@ -239,34 +248,45 @@ Nous vous contacterons pour confirmation finale! 📞"""
             notify_text += f"⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             
             # 3. إرسال الإشعار للبائع - هذا هو الجزء المهم!
-            logger.info(f"محاولة إرسال إشعار للبائع على الرقم: {SELLER_PHONE_NUMBER}")
+            logger.info(f"🔄 محاولة إرسال إشعار للبائع على الرقم: {SELLER_PHONE_NUMBER}")
+            logger.info(f"📤 محتوى الإشعار: {notify_text}")
+            
             seller_success = send_whatsapp_message(SELLER_PHONE_NUMBER, notify_text)
             
             if seller_success:
                 logger.info(f"✅ تم إرسال إشعار الطلبية بنجاح للبائع من العميل {sender_phone}")
+                
+                # 4. إرسال تأكيد إضافي للبائع
+                confirm_text = f"✅ تم استلام طلبية جديدة من {sender_phone} - الرجاء التواصل مع العميل خلال 30 دقيقة"
+                send_whatsapp_message(SELLER_PHONE_NUMBER, confirm_text)
+                
             else:
                 logger.error(f"❌ فشل إرسال إشعار الطلبية للبائع من العميل {sender_phone}")
+                
+                # محاولة بديلة: إرسال رسالة مختصرة
+                short_notify = f"🚨 طلبية جديدة من {sender_phone} - المنتج: {order_info.get('product', {}).get('ar', 'غير معروف')} - {order_info.get('total', 0)} درهم"
+                send_whatsapp_message(SELLER_PHONE_NUMBER, short_notify)
             
-            # 4. تنظيف الجلسة بعد إرسال الإشعار
+            # 5. تنظيف الجلسة بعد إرسال الإشعار
             if sender_phone in self.user_sessions:
                 del self.user_sessions[sender_phone]
-                logger.info(f"تم تنظيف جلسة المستخدم {sender_phone}")
+                logger.info(f"🧹 تم تنظيف جلسة المستخدم {sender_phone}")
             
-            # 5. الرد على الزبون
+            # 6. الرد على الزبون
             return self.responses['contact_info_received'][lang]
             
         except Exception as e:
-            logger.error(f"خطأ في معالجة معلومات الاتصال: {str(e)}")
+            logger.error(f"💥 خطأ في معالجة معلومات الاتصال: {str(e)}")
             if lang == 'ar':
-                return "حدث خطأ في معالجة معلوماتك. يرجى المحاولة مرة أخرى."
+                return "حدث خطأ في معالجة معلوماتك. يرجى المحاولة مرة أخرى أو الاتصال بنا مباشرة."
             else:
-                return "Erreur de traitement. Veuillez réessayer."
+                return "Erreur de traitement. Veuillez réessayer ou nous contacter directement."
 
 # تهيئة البوت
 bot = WhatsAppBot()
 
 def send_whatsapp_message(to: str, text: str) -> bool:
-    """إرسال رسالة واتساب - هذه الدالة هي المفتاح!"""
+    """إرسال رسالة واتساب"""
     try:
         url = f"https://graph.facebook.com/{VERSION}/{PHONE_NUMBER_ID}/messages"
         
@@ -282,10 +302,9 @@ def send_whatsapp_message(to: str, text: str) -> bool:
             "text": {"body": text}
         }
         
-        logger.info(f"🔄 محاولة إرسال رسالة إلى {to}")
-        logger.info(f"📝 محتوى الرسالة: {text[:100]}...")  # تسجيل جزء من الرسالة للت debugging
+        logger.info(f"🔄 إرسال رسالة إلى {to}")
         
-        response = requests.post(url, headers=headers, json=data, timeout=10)
+        response = requests.post(url, headers=headers, json=data, timeout=15)
         
         logger.info(f"📤 استجابة API: {response.status_code}")
         
@@ -375,11 +394,20 @@ def webhook():
 @app.route('/health', methods=['GET'])
 def health_check():
     """فحص صحة السيرفر"""
+    active_sessions = []
+    for phone, session in bot.user_sessions.items():
+        active_sessions.append({
+            'phone': phone,
+            'product': session.get('product', {}).get('ar', 'غير معروف'),
+            'waiting_since': session.get('timestamp').strftime('%H:%M:%S')
+        })
+    
     return jsonify({
         'status': 'healthy',
         'service': 'Moujib WhatsApp Bot',
-        'version': '2.1',
-        'active_sessions': len(bot.user_sessions),
+        'version': '3.0',
+        'active_sessions_count': len(bot.user_sessions),
+        'active_sessions': active_sessions,
         'seller_number': SELLER_PHONE_NUMBER,
         'timestamp': datetime.now().isoformat()
     }), 200
@@ -387,14 +415,28 @@ def health_check():
 @app.route('/test-notification', methods=['GET'])
 def test_notification():
     """اختبار إرسال إشعار للتاجر"""
-    test_message = "🔔 *اختبار إشعار البوت*\n\nهذه رسالة اختبار من بوت مجيب للتأكد من وصول الإشعارات إليك كتاجر.\n\n✅ إذا وصلتك هذه الرسالة، فالبوت يعمل بشكل صحيح!"
+    test_message = f"""🔔 *اختبار إشعار البوت*
+
+هذه رسالة اختبار من بوت مجيب 
+الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+✅ إذا وصلتك هذه الرسالة، فالبوت يعمل بشكل صحيح ويستطيع إرسال الإشعارات إليك!"""
     
     success = send_whatsapp_message(SELLER_PHONE_NUMBER, test_message)
     
     return jsonify({
         'success': success,
         'message': 'تم إرسال رسالة الاختبار',
-        'seller_number': SELLER_PHONE_NUMBER
+        'seller_number': SELLER_PHONE_NUMBER,
+        'timestamp': datetime.now().isoformat()
+    }), 200
+
+@app.route('/debug-sessions', methods=['GET'])
+def debug_sessions():
+    """تصحيح الجلسات النشطة"""
+    return jsonify({
+        'active_sessions': bot.user_sessions,
+        'count': len(bot.user_sessions)
     }), 200
 
 @app.route('/', methods=['GET'])
@@ -404,10 +446,12 @@ def home():
         'message': 'مرحباً بك في Moujib WhatsApp Bot',
         'status': 'يعمل',
         'seller_notifications': 'مفعل',
+        'active_sessions': len(bot.user_sessions),
         'endpoints': {
             'webhook': '/webhook',
             'health': '/health',
-            'test_notification': '/test-notification'
+            'test_notification': '/test-notification',
+            'debug_sessions': '/debug-sessions'
         }
     }), 200
 
