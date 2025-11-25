@@ -18,7 +18,7 @@ app = Flask(__name__)
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "moujib_token_secret")
 ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN", "EAAfo3utE4ioBQJ72Y5gkM29CnuSvLVlh3WZBvfKVt5rLLpt8TS15QTW36mLUSZC5Gzg2ZCu7sMDnBHMr5FuDwHuYr9WfASsZAlYIpG06F7pj4tV6e6XdknSMHI6D0YcyuoZB6ptQ4j1prkahIirpDTDPV3ecDWMb3zrwxBeiRgfGiQrfxT2A1CZAZCNZBSZCcAXuk7AZDZD")
 PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "889973017535202")
-SELLER_PHONE_NUMBER = "212770890339"  # رقم البائع
+SELLER_PHONE_NUMBER = "212770890339"  # رقمك كتاجر
 VERSION = "v19.0"
 
 class WhatsAppBot:
@@ -108,13 +108,13 @@ class WhatsAppBot:
         elif any(word in message for word in ['4', 'توصيل', 'livraison', 'delivery', 'شحون', 'وصل']):
             return self.responses['delivery'][lang]
         
-        # الطلبات
+        # الطلبات - هنا المشكلة كانت!
         elif any(char in message for char in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
             return self.process_order(message, lang, sender_phone)
         
         # --- الذكاء الجديد: اكتشاف معلومات الزبون ---
-        # إذا كانت الرسالة طويلة (أكثر من 10 كلمات) أو تحتوي على كلمات تشير إلى معلومات شخصية
-        elif self.is_contact_info(message):
+        # إذا كانت الرسالة تحتوي على معلومات اتصال
+        elif self.is_contact_info(message) or sender_phone in self.user_sessions:
             return self.process_contact_info(message, lang, sender_phone)
         
         # شكر
@@ -132,14 +132,11 @@ class WhatsAppBot:
         """التعرف على المعلومات الشخصية في الرسالة"""
         contact_keywords = [
             'اسم', 'عائلة', 'شارع', 'حي', 'مدينة', 'عنوان', 'هاتف', 'رقم', 
-            'name', 'rue', 'avenue', 'ville', 'adresse', 'téléphone', 'phone'
+            'name', 'rue', 'avenue', 'ville', 'adresse', 'téléphone', 'phone',
+            'الدار البيضاء', 'casablanca', 'الرباط', 'rabat', 'مراكش', 'marrakech'
         ]
         
-        # إذا كانت الرسالة طويلة (أكثر من 10 كلمات) أو تحتوي على كلمات مفتاحية
-        words = message.split()
-        if len(words) > 10:
-            return True
-        
+        # إذا كانت الرسالة تحتوي على كلمات مفتاحية
         for keyword in contact_keywords:
             if keyword in message.lower():
                 return True
@@ -171,13 +168,15 @@ class WhatsAppBot:
             product = self.products[product_code]
             total = product['price'] * quantity
             
-            # حفظ معلومات الطلب مؤقتاً
+            # حفظ معلومات الطلب مؤقتاً - هذا مهم للإشعار!
             self.user_sessions[sender_phone] = {
                 'product': product,
                 'quantity': quantity,
                 'total': total,
                 'timestamp': datetime.now()
             }
+            
+            logger.info(f"تم حفظ طلب من {sender_phone}: {product['ar']} x {quantity} = {total} درهم")
             
             if lang == 'ar':
                 return f"""✅ تم تسجيل اختيارك!
@@ -213,13 +212,14 @@ Nous vous contacterons pour confirmation finale! 📞"""
     def process_contact_info(self, message: str, lang: str, sender_phone: str) -> str:
         """معالجة معلومات الاتصال وإرسال إشعار للبائع"""
         try:
-            # 1. إرسال إشعار مفصل للبائع
+            # 1. الحصول على معلومات الطلب من الجلسة
             order_info = self.user_sessions.get(sender_phone, {})
             
+            # 2. إنشاء رسالة الإشعار للبائع
             notify_text = f"""🚨 *طلبية جديدة!*
 
 📞 العميل: {sender_phone}
-📝 المعلومات:
+📝 المعلومات المقدمة:
 {message}
 
 """
@@ -229,26 +229,30 @@ Nous vous contacterons pour confirmation finale! 📞"""
                 quantity = order_info.get('quantity', 1)
                 total = order_info.get('total', 0)
                 
-                notify_text += f"""🛒 تفاصيل الطلب:
+                notify_text += f"""🛒 *تفاصيل الطلب:*
 📦 المنتج: {product.get('ar', 'غير محدد')}
 🔢 الكمية: {quantity}
 💰 الإجمالي: {total} درهم
 
-⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
-
-            # إرسال الإشعار للبائع
+"""
+            
+            notify_text += f"⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            
+            # 3. إرسال الإشعار للبائع - هذا هو الجزء المهم!
+            logger.info(f"محاولة إرسال إشعار للبائع على الرقم: {SELLER_PHONE_NUMBER}")
             seller_success = send_whatsapp_message(SELLER_PHONE_NUMBER, notify_text)
             
             if seller_success:
-                logger.info(f"تم إرسال إشعار الطلبية للبائع من العميل {sender_phone}")
+                logger.info(f"✅ تم إرسال إشعار الطلبية بنجاح للبائع من العميل {sender_phone}")
             else:
-                logger.error(f"فشل إرسال إشعار الطلبية للبائع من العميل {sender_phone}")
+                logger.error(f"❌ فشل إرسال إشعار الطلبية للبائع من العميل {sender_phone}")
             
-            # 2. تنظيف الجلسة
+            # 4. تنظيف الجلسة بعد إرسال الإشعار
             if sender_phone in self.user_sessions:
                 del self.user_sessions[sender_phone]
+                logger.info(f"تم تنظيف جلسة المستخدم {sender_phone}")
             
-            # 3. الرد على الزبون
+            # 5. الرد على الزبون
             return self.responses['contact_info_received'][lang]
             
         except Exception as e:
@@ -262,7 +266,7 @@ Nous vous contacterons pour confirmation finale! 📞"""
 bot = WhatsAppBot()
 
 def send_whatsapp_message(to: str, text: str) -> bool:
-    """إرسال رسالة واتساب"""
+    """إرسال رسالة واتساب - هذه الدالة هي المفتاح!"""
     try:
         url = f"https://graph.facebook.com/{VERSION}/{PHONE_NUMBER_ID}/messages"
         
@@ -278,24 +282,29 @@ def send_whatsapp_message(to: str, text: str) -> bool:
             "text": {"body": text}
         }
         
-        logger.info(f"إرسال رسالة إلى {to}")
+        logger.info(f"🔄 محاولة إرسال رسالة إلى {to}")
+        logger.info(f"📝 محتوى الرسالة: {text[:100]}...")  # تسجيل جزء من الرسالة للت debugging
+        
         response = requests.post(url, headers=headers, json=data, timeout=10)
         
+        logger.info(f"📤 استجابة API: {response.status_code}")
+        
         if response.status_code == 200:
-            logger.info("تم إرسال الرسالة بنجاح")
+            logger.info(f"✅ تم إرسال الرسالة بنجاح إلى {to}")
             return True
         else:
-            logger.error(f"خطأ في إرسال الرسالة: {response.status_code} - {response.text}")
+            logger.error(f"❌ خطأ في إرسال الرسالة: {response.status_code}")
+            logger.error(f"📋 تفاصيل الخطأ: {response.text}")
             return False
             
     except requests.exceptions.Timeout:
-        logger.error("انتهت مهلة إرسال الرسالة")
+        logger.error("⏰ انتهت مهلة إرسال الرسالة")
         return False
     except requests.exceptions.RequestException as e:
-        logger.error(f"خطأ في الاتصال: {str(e)}")
+        logger.error(f"🔌 خطأ في الاتصال: {str(e)}")
         return False
     except Exception as e:
-        logger.error(f"خطأ غير متوقع في الإرسال: {str(e)}")
+        logger.error(f"💥 خطأ غير متوقع في الإرسال: {str(e)}")
         return False
 
 @app.route('/webhook', methods=['GET'])
@@ -309,10 +318,10 @@ def verify_webhook():
 
     if mode and token:
         if mode == 'subscribe' and token == VERIFY_TOKEN:
-            logger.info("تم التحقق من الويب هوك بنجاح")
+            logger.info("✅ تم التحقق من الويب هوك بنجاح")
             return challenge, 200
         else:
-            logger.warning("فشل التحقق من الويب هوك - توكن غير صحيح")
+            logger.warning("❌ فشل التحقق من الويب هوك - توكن غير صحيح")
             return 'Forbidden', 403
     
     return 'Hello World', 200
@@ -327,7 +336,7 @@ def webhook():
             logger.warning("طلب POST بدون بيانات")
             return 'OK', 200
         
-        logger.info(f"بيانات مستلمة من الويب هوك")
+        logger.info("📩 بيانات مستلمة من الويب هوك")
         
         # استخراج الرسالة
         entry = data.get('entry', [{}])[0]
@@ -345,21 +354,21 @@ def webhook():
             phone_number = message_data['from']
             message_body = message_data['text']['body']
             
-            logger.info(f"رسالة من {phone_number}: {message_body}")
+            logger.info(f"📨 رسالة من {phone_number}: {message_body}")
             
             # معالجة الرسالة والحصول على الرد
             reply_text = bot.process_message(message_body, phone_number)
             
-            # إرسال الرد
+            # إرسال الرد للزبون
             success = send_whatsapp_message(phone_number, reply_text)
             
             if success:
-                logger.info(f"تم إرسال الرد إلى {phone_number}")
+                logger.info(f"✅ تم إرسال الرد إلى {phone_number}")
             else:
-                logger.error(f"فشل إرسال الرد إلى {phone_number}")
+                logger.error(f"❌ فشل إرسال الرد إلى {phone_number}")
                 
     except Exception as e:
-        logger.error(f"خطأ في معالجة الويب هوك: {str(e)}")
+        logger.error(f"💥 خطأ في معالجة الويب هوك: {str(e)}")
     
     return 'OK', 200
 
@@ -369,9 +378,23 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'service': 'Moujib WhatsApp Bot',
-        'version': '2.0',
+        'version': '2.1',
         'active_sessions': len(bot.user_sessions),
+        'seller_number': SELLER_PHONE_NUMBER,
         'timestamp': datetime.now().isoformat()
+    }), 200
+
+@app.route('/test-notification', methods=['GET'])
+def test_notification():
+    """اختبار إرسال إشعار للتاجر"""
+    test_message = "🔔 *اختبار إشعار البوت*\n\nهذه رسالة اختبار من بوت مجيب للتأكد من وصول الإشعارات إليك كتاجر.\n\n✅ إذا وصلتك هذه الرسالة، فالبوت يعمل بشكل صحيح!"
+    
+    success = send_whatsapp_message(SELLER_PHONE_NUMBER, test_message)
+    
+    return jsonify({
+        'success': success,
+        'message': 'تم إرسال رسالة الاختبار',
+        'seller_number': SELLER_PHONE_NUMBER
     }), 200
 
 @app.route('/', methods=['GET'])
@@ -380,9 +403,11 @@ def home():
     return jsonify({
         'message': 'مرحباً بك في Moujib WhatsApp Bot',
         'status': 'يعمل',
+        'seller_notifications': 'مفعل',
         'endpoints': {
             'webhook': '/webhook',
-            'health': '/health'
+            'health': '/health',
+            'test_notification': '/test-notification'
         }
     }), 200
 
@@ -390,5 +415,8 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     debug = os.environ.get("DEBUG", "False").lower() == "true"
     
-    logger.info(f"تشغيل سيرفر Moujib على المنفذ {port}")
+    logger.info(f"🚀 تشغيل سيرفر Moujib على المنفذ {port}")
+    logger.info(f"📞 رقم البائع: {SELLER_PHONE_NUMBER}")
+    logger.info(f"🔧 وضع التصحيح: {debug}")
+    
     app.run(host='0.0.0.0', port=port, debug=debug)
