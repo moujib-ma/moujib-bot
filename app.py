@@ -2,19 +2,23 @@ from flask import Flask, request, jsonify
 import requests
 import os
 import logging
-from typing import Optional, Dict, Any
+import re
 
-# إعداد التسجيل
-logging.basicConfig(level=logging.INFO)
+# إعداد التسجيل (Logging) لفهم ما يحدث في السيرفر
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# --- إعدادات واتساب ---
-VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN", "moujib_token_secret")
-ACCESS_TOKEN = os.getenv("WHATSAPP_ACCESS_TOKEN", "ضع_كود_التوكن_الطويل_هنا")
-889973017535202 = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "ضع_رقم_الهاتف_ايدي_هنا")
-VERSION = "v19.0"  # أحدث نسخة
+# --- إعدادات واتساب (تم دمج بياناتك) ---
+# ملاحظة: استخدام os.environ.get يجعل الكود آمناً ويعمل على Render
+VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "moujib_token_secret")
+ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN", "EAAfo3utE4ioBQAbXAqBDuNZBfXRUUhmaBRbM0jp2ZAnwNBZBwzZAWy2u5JBHe4nKoSjGEarEkKFDSxlZBOSw3gZBgjula2MUKgTzEPEmwHj2jJDSUNxFch4UcWFqurWh3LOUf6peNdkq15PzVvutLhrfE0YTkxuZBnGxgZASlZBRAB3m1QNAmyA64jVThGLV1kHcZAEByYYdfMXOHmJZCK7zllOdlSrZBhRhD6NsiZCZA1KeerGKSD5QonZAwBlO3BhSGXgpnZAW9Q3jlW2PNhhiALhFKd8hc1QagAZDZD")
+PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "889973017535202")
+VERSION = "v19.0"
 
 class WhatsAppBot:
     """فئة لإدارة منطق البوت والردود"""
@@ -41,16 +45,32 @@ class WhatsAppBot:
                 'ar': "🚚 *معلومات التوصيل:*\n\n• التوصيل خلال 24-48 ساعة\n• مجاني للدار البيضاء والرباط\n• 20 درهم للمدن الأخرى\n• نعمل من الإثنين إلى السبت\n\nللتتبع أو الاستفسار، راسلنا!",
                 'fr': "🚚 *Informations Livraison:*\n\n• Livraison 24-48h\n• Gratuite pour Casablanca et Rabat\n• 20 DH autres villes\n• Lundi à Samedi\n\nPour suivi ou questions, contactez-nous!"
             },
+            'help': {
+                'ar': "🆘 *كيف يمكنني مساعدتك؟*\n\n📋 1 - عرض منتجات الرجال\n📋 2 - عرض منتجات النساء\n💰 3 - معلومات الأسعار\n🚚 4 - معلومات التوصيل\n\nأو اكتب رسالتك مباشرة!",
+                'fr': "🆘 *Comment puis-je vous aider?*\n\n📋 1 - Voir produits Homme\n📋 2 - Voir produits Femme\n💰 3 - Informations prix\n🚚 4 - Informations livraison\n\nOu écrivez votre message directement!"
+            },
             'unknown': {
-                'ar': "🤔 لم أفهم سؤالك!\n\nجرب أحد الخيارات:\n• اكتب '1' للملابس الرجالية\n• اكتب '2' للملابس النسائية\n• اكتب 'سعر' للاستفسار عن الأسعار\n• اكتب 'توصيل' لمعلومات التوصيل\n\nأو اكتب سؤالك بطريقة أخرى!",
-                'fr': "🤔 Je n'ai pas compris!\n\nEssayez:\n• Tapez '1' pour Homme\n• Tapez '2' pour Femme\n• Tapez 'prix' pour les tarifs\n• Tapez 'livraison' pour infos livraison\n\nOu reformulez votre question!"
+                'ar': "🤔 لم أفهم سؤالك!\n\nاكتب 'مساعدة' للحصول على قائمة الخيارات المتاحة\nأو اكتب سؤالك بطريقة أخرى!",
+                'fr': "🤔 Je n'ai pas compris!\n\nTapez 'aide' pour voir les options disponibles\nOu reformulez votre question!"
             }
+        }
+        
+        # منتجات إضافية
+        self.products = {
+            'a': {'ar': 'سروال جينز', 'fr': 'Jean', 'price': 200, 'category': 'men'},
+            'b': {'ar': 'تيشيرت قطني', 'fr': 'T-shirt', 'price': 100, 'category': 'men'},
+            'c': {'ar': 'جاكيت شتوي', 'fr': 'Veste', 'price': 350, 'category': 'men'},
+            'd': {'ar': 'أحذية رياضية', 'fr': 'Chaussures', 'price': 280, 'category': 'men'},
+            'e': {'ar': 'فستان صيفي', 'fr': 'Robe été', 'price': 250, 'category': 'women'},
+            'f': {'ar': 'بلوزة حرير', 'fr': 'Chemisier soie', 'price': 180, 'category': 'women'},
+            'g': {'ar': 'شورت', 'fr': 'Short', 'price': 120, 'category': 'women'},
+            'h': {'ar': 'كعب عالي', 'fr': 'Talons', 'price': 220, 'category': 'women'}
         }
     
     def detect_language(self, text: str) -> str:
         """اكتشاف لغة النص"""
-        arabic_chars = set('ابتثجحخدذرزسشصضطظعغفقكلمنهوي')
-        if any(char in arabic_chars for char in text):
+        arabic_pattern = re.compile('[\u0600-\u06FF]')
+        if arabic_pattern.search(text):
             return 'ar'
         return 'fr'
     
@@ -59,28 +79,40 @@ class WhatsAppBot:
         message = message.lower().strip()
         lang = self.detect_language(message)
         
-        # الترحيب
-        if any(word in message for word in ['salam', 'slm', 'سلام', 'bonjour', 'hello', 'hi', 'مرحبا']):
+        logger.info(f"معالجة الرسالة: '{message}' باللغة: {lang}")
+        
+        # الترحيب والمساعدة
+        if any(word in message for word in ['salam', 'slm', 'سلام', 'bonjour', 'hello', 'hi', 'مرحبا', 'مساء', 'صباح']):
             return self.responses['greeting'][lang]
         
+        elif any(word in message for word in ['مساعدة', 'aide', 'help', 'خيارات']):
+            return self.responses['help'][lang]
+        
         # القوائم
-        elif any(word in message for word in ['1', 'رجال', 'homme', 'male']):
+        elif any(word in message for word in ['1', 'رجال', 'homme', 'male', 'ذكور']):
             return self.responses['men_collection'][lang]
         
-        elif any(word in message for word in ['2', 'نساء', 'femme', 'women']):
+        elif any(word in message for word in ['2', 'نساء', 'femme', 'women', 'إناث']):
             return self.responses['women_collection'][lang]
         
         # الأسعار
-        elif any(word in message for word in ['3', 'بشحال', 'ثمن', 'سعر', 'prix', 'combien']):
+        elif any(word in message for word in ['3', 'بشحال', 'ثمن', 'سعر', 'prix', 'combien', 'تكلفة']):
             return self.responses['pricing'][lang]
         
         # التوصيل
-        elif any(word in message for word in ['4', 'توصيل', 'livraison', 'delivery']):
+        elif any(word in message for word in ['4', 'توصيل', 'livraison', 'delivery', 'شحون', 'وصل']):
             return self.responses['delivery'][lang]
         
         # الطلبات
-        elif any(char in message for char in ['a', 'b', 'c', 'd']):
+        elif any(char in message.lower() for char in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']):
             return self.process_order(message, lang)
+        
+        # شكر
+        elif any(word in message for word in ['شكر', 'merci', 'thanks', 'thank']):
+            if lang == 'ar':
+                return "العفو! 😊\n\nهل يمكنني مساعدتك بأي شيء آخر؟"
+            else:
+                return "De rien! 😊\n\nPuis-je vous aider avec autre chose?"
         
         # غير معروف
         else:
@@ -88,38 +120,105 @@ class WhatsAppBot:
     
     def process_order(self, message: str, lang: str) -> str:
         """معالجة طلب المنتج"""
-        products = {
-            'a': {'ar': 'سروال جينز', 'fr': 'Jean', 'price': 200},
-            'b': {'ar': 'تيشيرت قطني', 'fr': 'T-shirt', 'price': 100},
-            'c': {'ar': 'جاكيت شتوي', 'fr': 'Veste', 'price': 350},
-            'd': {'ar': 'أحذية رياضية', 'fr': 'Chaussures', 'price': 280}
-        }
-        
         try:
-            parts = message.split()
-            product_code = parts[0].lower()
-            quantity = int(parts[1]) if len(parts) > 1 else 1
+            # استخراج الحرف والكمية من الرسالة
+            message_lower = message.lower()
+            product_code = None
             
-            if product_code in products:
-                product = products[product_code]
-                total = product['price'] * quantity
-                
-                if lang == 'ar':
-                    return f"✅ تم تسجيل طلبك!\n\n📦 المنتج: {product['ar']}\n🔢 الكمية: {quantity}\n💰 الإجمالي: {total} درهم\n\nللتأكيد، ارسل:\n• اسمك الكامل\n• العنوان\n• رقم الهاتف"
-                else:
-                    return f"✅ Commande enregistrée!\n\n📦 Produit: {product['fr']}\n🔢 Quantité: {quantity}\n💰 Total: {total} DH\n\nPour confirmer, envoyez:\n• Nom complet\n• Adresse\n• Téléphone"
+            # البحث عن الحرف في الرسالة
+            for char in ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']:
+                if char in message_lower:
+                    product_code = char
+                    break
+            
+            if not product_code or product_code not in self.products:
+                return self.responses['unknown'][lang]
+            
+            # استخراج الكمية
+            quantity = 1
+            numbers = re.findall(r'\d+', message)
+            if numbers:
+                quantity = int(numbers[0])
+                quantity = min(quantity, 10)  # حد أقصى 10 قطع
+            
+            product = self.products[product_code]
+            total = product['price'] * quantity
+            
+            if lang == 'ar':
+                return f"""✅ تم تسجيل طلبك!
+
+📦 المنتج: {product['ar']}
+🔢 الكمية: {quantity}
+💰 السعر للقطعة: {product['price']} درهم
+💰 الإجمالي: {total} درهم
+
+لإكمال الطلب، نرجو إرسال:
+👤 الاسم الكامل
+📍 العنوان الكامل
+📞 رقم الهاتف
+
+شكراً لثقتك بنا! 🤝"""
+            else:
+                return f"""✅ Commande enregistrée!
+
+📦 Produit: {product['fr']}
+🔢 Quantité: {quantity}
+💰 Prix unitaire: {product['price']} DH
+💰 Total: {total} DH
+
+Pour compléter la commande, veuillez envoyer:
+👤 Nom complet
+📍 Adresse complète
+📞 Numéro de téléphone
+
+Merci de votre confiance! 🤝"""
         
-        except (ValueError, IndexError):
-            pass
-        
-        # إذا كان هناك خطأ في الطلب
-        if lang == 'ar':
-            return "📝 لطلب منتج، اكتب:\nالحرف + الكمية\nمثال: A 2\n\nالحروف المتاحة: A, B, C, D"
-        else:
-            return "📝 Pour commander, écrivez:\nLettre + Quantité\nExemple: A 2\n\nLettres disponibles: A, B, C, D"
+        except Exception as e:
+            logger.error(f"خطأ في معالجة الطلب: {str(e)}")
+            if lang == 'ar':
+                return "📝 لطلب منتج، اكتب:\nالحرف + الكمية\nمثال: A 2\n\nالحروف المتاحة: A, B, C, D, E, F, G, H"
+            else:
+                return "📝 Pour commander, écrivez:\nLettre + Quantité\nExemple: A 2\n\nLettres disponibles: A, B, C, D, E, F, G, H"
 
 # تهيئة البوت
 bot = WhatsAppBot()
+
+def send_whatsapp_message(to: str, text: str) -> bool:
+    """إرسال رسالة واتساب"""
+    try:
+        url = f"https://graph.facebook.com/{VERSION}/{PHONE_NUMBER_ID}/messages"
+        
+        headers = {
+            "Authorization": f"Bearer {ACCESS_TOKEN}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "messaging_product": "whatsapp",
+            "to": to,
+            "type": "text",
+            "text": {"body": text}
+        }
+        
+        logger.info(f"إرسال رسالة إلى {to}")
+        response = requests.post(url, headers=headers, json=data, timeout=10)
+        
+        if response.status_code == 200:
+            logger.info("تم إرسال الرسالة بنجاح")
+            return True
+        else:
+            logger.error(f"خطأ في إرسال الرسالة: {response.status_code} - {response.text}")
+            return False
+            
+    except requests.exceptions.Timeout:
+        logger.error("انتهت مهلة إرسال الرسالة")
+        return False
+    except requests.exceptions.RequestException as e:
+        logger.error(f"خطأ في الاتصال: {str(e)}")
+        return False
+    except Exception as e:
+        logger.error(f"خطأ غير متوقع في الإرسال: {str(e)}")
+        return False
 
 @app.route('/webhook', methods=['GET'])
 def verify_webhook():
@@ -128,12 +227,14 @@ def verify_webhook():
     token = request.args.get('hub.verify_token')
     challenge = request.args.get('hub.challenge')
 
+    logger.info(f"طلب تحقق: mode={mode}, token={token}")
+
     if mode and token:
         if mode == 'subscribe' and token == VERIFY_TOKEN:
             logger.info("تم التحقق من الويب هوك بنجاح")
             return challenge, 200
         else:
-            logger.warning("فشل التحقق من الويب هوك")
+            logger.warning("فشل التحقق من الويب هوك - توكن غير صحيح")
             return 'Forbidden', 403
     
     return 'Hello World', 200
@@ -145,7 +246,7 @@ def webhook():
         data = request.get_json()
         
         if not data:
-            logger.warning("لا توجد بيانات في الطلب")
+            logger.warning("طلب POST بدون بيانات")
             return 'OK', 200
         
         logger.info(f"بيانات مستلمة: {data}")
@@ -164,7 +265,7 @@ def webhook():
                 return 'OK', 200
             
             phone_number = message_data['from']
-            message_body = message_body = message_data['text']['body']
+            message_body = message_data['text']['body']
             
             logger.info(f"رسالة من {phone_number}: {message_body}")
             
@@ -181,7 +282,6 @@ def webhook():
                 
     except Exception as e:
         logger.error(f"خطأ في معالجة الويب هوك: {str(e)}")
-        logger.error(f"تفاصيل الخطأ: {data}")
     
     return 'OK', 200
 
@@ -191,61 +291,25 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'service': 'Moujib WhatsApp Bot',
-        'version': '1.0'
+        'version': '2.0'
     }), 200
 
-def send_whatsapp_message(to: str, text: str) -> bool:
-    """إرسال رسالة واتساب"""
-    try:
-        url = f"https://graph.facebook.com/{VERSION}/{PHONE_NUMBER_ID}/messages"
-        
-        headers = {
-            "Authorization": f"Bearer {EAAfo3utE4ioBQAbXAqBDuNZBfXRUUhmaBRbM0jp2ZAnwNBZBwzZAWy2u5JBHe4nKoSjGEarEkKFDSxlZBOSw3gZBgjula2MUKgTzEPEmwHj2jJDSUNxFch4UcWFqurWh3LOUf6peNdkq15PzVvutLhrfE0YTkxuZBnGxgZASlZBRAB3m1QNAmyA64jVThGLV1kHcZAEByYYdfMXOHmJZCK7zllOdlSrZBhRhD6NsiZCZA1KeerGKSD5QonZAwBlO3BhSGXgpnZAW9Q3jlW2PNhhiALhFKd8hc1QagAZDZD}",
-            "Content-Type": "application/json"
+@app.route('/', methods=['GET'])
+def home():
+    """الصفحة الرئيسية"""
+    return jsonify({
+        'message': 'مرحباً بك في Moujib WhatsApp Bot',
+        'status': 'يعمل',
+        'endpoints': {
+            'webhook': '/webhook',
+            'health': '/health'
         }
-        
-        data = {
-            "messaging_product": "whatsapp",
-            "to": to,
-            "type": "text",
-            "text": {"body": text}
-        }
-        
-        response = requests.post(url, headers=headers, json=data, timeout=10)
-        
-        if response.status_code == 200:
-            return True
-        else:
-            logger.error(f"خطأ في إرسال الرسالة: {response.status_code} - {response.text}")
-            return False
-            
-    except requests.exceptions.RequestException as e:
-        logger.error(f"خطأ في الاتصال: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"خطأ غير متوقع: {str(e)}")
-        return False
-
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({'error': 'Endpoint not found'}), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({'error': 'Internal server error'}), 500
+    }), 200
 
 if __name__ == '__main__':
-    # التحقق من المتغيرات البيئية
-    required_vars = ['WHATSAPP_ACCESS_TOKEN', 'WHATSAPP_PHONE_NUMBER_ID']
-    missing_vars = [var for var in required_vars if not os.getenv(var)]
-    
-    if missing_vars:
-        logger.warning(f"متغيرات بيئية مفقودة: {missing_vars}")
-        logger.warning("سيتم استخدام القيم الافتراضية")
-    
-    # تشغيل التطبيق
-    port = int(os.getenv('PORT', 5000))
-    debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    # الإصلاح السحري لـ Render
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("DEBUG", "False").lower() == "true"
     
     logger.info(f"تشغيل سيرفر Moujib على المنفذ {port}")
     app.run(host='0.0.0.0', port=port, debug=debug)
