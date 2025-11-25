@@ -24,89 +24,101 @@ VERSION = "v19.0"
 
 class WhatsAppBot:
     def __init__(self):
-        # 🇲🇦 الردود المغربية الأصيلة
+        # 🇲🇦 الردود المغربية الأصيلة (بدون تيفيناغ)
         self.responses = {
             'greeting': {
-                'ar': "ⴰⵀⵍⴰⵏ ⵡⴰⵙⴰⵍⴰⵎ ⵍⴽ! 👋\n\n🛍️ *ⵙⵔⴷⵖⵉⵏ ⴷⵔⴱⵉ ⵏⴽ:*\n\n👕 1. ⵍⵃⵡⴰⵢⴰⵊ ⵏ ⵉⵔⴳⴰⵣⵏ\n👗 2. ⵍⵃⵡⴰⵢⴰⵊ ⵏ ⵉⵙⴽⵜⵓⵔⵏ\n💰 3. ⵙⵉⵔ ⵏ ⵍⵎⵏⵙⴰ\n🚚 4. ⵜⵜⵓⵚⵍⵉⵍ ⵡⴰⵍⵙⵍⴼ\n\nⴷⵉⵔ ⵕⵇⵎ ⵡⵍⴰ ⵉⴽⵜⴱ ⵙⵓⴰⵍⴽ!",
-                'fr': "Ahlan wsalam lik! 👋\n\n🛍️ *Services darbi nk:*\n\n👕 1. L7wayj n Irgazn\n👗 2. L7wayj n Iskturn\n💰 3. Ssir l mnsa\n🚚 4. Ttouslil w slf\n\nDir rakam wla kteb soualak!"
+                'ar': "أهلاً وسهلاً بك! 👋\n\n🛍️ *خدماتنا:*\n\n👕 1. كوليكسيون الرجال\n👗 2. كوليكسيون النساء\n💰 3. استعلام عن السعر\n📞 4. التوصيل والدفع\n\nاختر رقم أو اكتب سؤالك!",
+                'fr': "Bienvenue chez nous! 👋\n\n🛍️ *Nos services:*\n\n👕 1. Collection Homme\n👗 2. Collection Femme\n💰 3. Demande de prix\n📞 4. Livraison et Paiement\n\nChoisissez un numéro ou écrivez votre question!"
             },
             'men_collection': {
-                'ar': "🔥 *ⵍⵃⵡⴰⵢⴰⵊ ⵏ ⵉⵔⴳⴰⵣⵏ:*\n\n👖 A. ⵙⵔⵡⴰⵍ ⵊⵉⵏⵣ - 200 ⴷⵔⵀⵎ\n👕 B. ⵜⵉⵛⵉⵔⵜ - 100 ⴷⵔⵀⵎ\n🧥 C. ⵊⴰⴽⵉⵜ - 350 ⴷⵔⵀⵎ\n👟 D. ⵙⴱⴰⵜⵉ - 280 ⴷⵔⵀⵎ\n\nⵃⵜⵜ ⵍⵉⴳⵔⴰⵎ ⵅⴼ ⵍⵇⵜⵉⵢⴰ (ⵎⵜⵍ: A 2)",
-                'fr': "🔥 *L7wayj n Irgazn:*\n\n👖 A. Sserwal Jeans - 200 DH\n👕 B. Tichirt - 100 DH\n🧥 C. Jakett - 350 DH\n👟 D. Ssbati - 280 DH\n\n7ett lgram w l9tiya (mtl: A 2)"
+                'ar': "🔥 *كوليكسيون الرجال:*\n\n👖 A. سروال جينز - 200 درهم\n👕 B. تيشيرت قطني - 100 درهم\n🧥 C. جاكيت شتوي - 350 درهم\n👟 D. أحذية رياضية - 280 درهم\n\nلطلب منتج، اكتب الحرف + الكمية (مثال: A 2)",
+                'fr': "🔥 *Collection Homme:*\n\n👖 A. Jean - 200 DH\n👕 B. T-shirt coton - 100 DH\n🧥 C. Veste d'hiver - 350 DH\n👟 D. Chaussures sport - 280 DH\n\nPour commander, écrivez la lettre + quantité (ex: A 2)"
             },
             'women_collection': {
-                'ar': "💫 *ⵍⵃⵡⴰⵢⴰⵊ ⵏ ⵉⵙⴽⵜⵓⵔⵏ:*\n\n👗 A. ⴼⵙⵜⴰⵏ - 250 ⴷⵔⵀⵎ\n👚 B. ⴱⵍⵣⴰ - 180 ⴷⵔⵀⵎ\n🩳 C. ⵛⵓⵔⵜ - 120 ⴷⵔⵀⵎ\n👠 D. ⴽⵄⴱ - 220 ⴷⵔⵀⵎ\n\nⵃⵜ ⵍⵉⴳⵔⴰⵎ ⵅⴼ ⵍⵇⵜⵉⵢⴰ",
-                'fr': "💫 *L7wayj n Iskturn:*\n\n👗 A. Fstan - 250 DH\n👚 B. Blouza - 180 DH\n🩳 C. Short - 120 DH\n👠 D. K3ab - 220 DH\n\n7ett lgram w l9tiya"
+                'ar': "💫 *كوليكسيون النساء:*\n\n👗 A. فستان صيفي - 250 درهم\n👚 B. بلوزة حرير - 180 درهم\n🩳 C. شورت - 120 درهم\n👠 D. كعب عالي - 220 درهم\n\nلطلب منتج، اكتب الحرف + الكمية",
+                'fr': "💫 *Collection Femme:*\n\n👗 A. Robe d'été - 250 DH\n👚 B. Chemisier soie - 180 DH\n🩳 C. Short - 120 DH\n👠 D. Talons - 220 DH\n\nPour commander, écrivez la lettre + quantité"
             },
             'pricing': {
-                'ar': "💰 *ⵙⵉⵔ ⵏ ⵍⵎⵏⵙⴰ:*\n\n• ⵙⵉⵔⴰⵜ ⵎⵏ 100 ⴷⵔⵀⵎ\n• ⵜⵅⵙⵉⵙ 10% ⵉⵍⴰ ⵍⵜⵍⴰⴱⴰⵜ ⵍⵍⵉ ⴼⵓⵇ 500 ⴷⵔⵀⵎ\n• ⵜⵜⵓⵚⵍⵉⵍ ⵎⴳⵔⴰⵏⵉ ⵉⵍⴰ ⵍⵜⵍⴰⴱⴰⵜ ⵍⵍⵉ ⴼⵓⵇ 300 ⴷⵔⵀⵎ\n• ⵍⴷⴼⵄ ⵜⵍⵇⴰ ⵉⵍⴰ ⵍⵉⵙⵜⵍⵎ ⵡⵍⴰ ⵜⵀⵡⵉⵍ ⴱⴰⵏⴽⵉ\n\nⵍⵍⵉⵙⵜⵉⴼⵙⴰⵔ 3ⵍⴰ ⵛⵉ ⵃⴰⵊⴰ ⵙⵓⵢⴰ، ⵉⴽⵜⴱ ⵙⵎⵉⵜⵀ!",
-                'fr': "💰 *Ssir l mnsa:*\n\n• Ssirat mn 100 DH\n• Tkhesis 10% l talabat lli foug 500 DH\n• Ttouslil mgrani l talabat lli foug 300 DH\n• Ldfa3 tleqa 3la listlam wla thwil banki\n\nLlistifssar 3la chi haja swiya, kteb smitha!"
+                'ar': "💰 *معلومات الأسعار:*\n\n• الأسعار تبدأ من 100 درهم\n• خصم 10% للطلبات فوق 500 درهم\n• التوصيل مجاني لطلبات فوق 300 درهم\n• الدفع نقداً عند الاستلام أو تحويل بنكي\n\nللاستفسار عن منتج معين، اكتب اسمه!",
+                'fr': "💰 *Informations Prix:*\n\n• Prix à partir de 100 DH\n• Remise 10% pour commandes > 500 DH\n• Livraison gratuite > 300 DH\n• Paiement cash à la livraison ou virement\n\nPour un produit spécifique, écrivez son nom!"
             },
             'delivery': {
-                'ar': "🚚 *ⵜⵜⵓⵚⵍⵉⵍ:*\n\n• ⵜⵜⵓⵚⵍⵉⵍ ⵅⵍⴰⵍ 24-48 ⵙⴰⵄⴰ\n• ⵎⴳⵔⴰⵏⵉ ⵍⴷⴷⴰⵔ ⵍⴱⵉⴹⴰ ⵡⵔⵔⴱⴰⵟ\n• 20 ⴷⵔⵀⵎ ⵍⵍⵎⴷⵏ ⵍⵅⵔⴰ\n• ⵏⵅⴷⵎⵓ ⵎⵏ ⵍⵉⵜⵏⵉⵏ ⵍⵉⵙⵙⴱⵜ\n\nⵍⵜⵜⴱⵄ ⵡⵍⴰ ⵍⵉⵙⵜⵉⴼⵙⴰⵔ، ⵔⴰⵙⵍⵏⴰ!",
-                'fr': "🚚 *Ttouslil:*\n\n• Ttouslil khlal 24-48 sa3a\n• Mgrani l ddare lbida w rrbat\n• 20 DH l lmdn lkhra\n• Nkhdmo mn litnin l ssbt\n\nL ttb3 wla listifssar, rasselna!"
+                'ar': "🚚 *معلومات التوصيل:*\n\n• التوصيل خلال 24-48 ساعة\n• مجاني للدار البيضاء والرباط\n• 20 درهم للمدن الأخرى\n• نعمل من الإثنين إلى السبت\n\nللتتبع أو الاستفسار، راسلنا!",
+                'fr': "🚚 *Informations Livraison:*\n\n• Livraison 24-48h\n• Gratuite pour Casablanca et Rabat\n• 20 DH autres villes\n• Lundi à Samedi\n\nPour suivi ou questions, contactez-nous!"
+            },
+            'help': {
+                'ar': "🆘 *كيف يمكنني مساعدتك؟*\n\n📋 1 - عرض منتجات الرجال\n📋 2 - عرض منتجات النساء\n💰 3 - معلومات الأسعار\n🚚 4 - معلومات التوصيل\n\nأو اكتب رسالتك مباشرة!",
+                'fr': "🆘 *Comment puis-je vous aider?*\n\n📋 1 - Voir produits Homme\n📋 2 - Voir produits Femme\n💰 3 - Informations prix\n🚚 4 - Informations livraison\n\nOu écrivez votre message directement!"
+            },
+            'contact_info_received': {
+                'ar': "✅ تم استلام معلوماتك بنجاح!\n\n📞 سيتصل بك فريقنا خلال 30 دقيقة للتأكيد النهائي للطلب.\n\nشكراً لثقتك بنا! 🤝",
+                'fr': "✅ Informations reçues avec succès!\n\n📞 Notre équipe vous contactera dans 30 minutes pour confirmation finale.\n\nMerci de votre confiance! 🤝"
+            },
+            'unknown': {
+                'ar': "🤔 لم أفهم سؤالك!\n\nاكتب 'مساعدة' للحصول على قائمة الخيارات المتاحة\nأو اكتب سؤالك بطريقة أخرى!",
+                'fr': "🤔 Je n'ai pas compris!\n\nTapez 'aide' pour voir les options disponibles\nOu reformulez votre question!"
             }
         }
         
         # 🇲🇦 المنتجات المغربية
         self.products = {
-            'a': {'ar': 'ⵙⵔⵡⴰⵍ ⵊⵉⵏⵣ ⵎⵖⵔⴱⵉ', 'fr': 'Sserwal Jeans Maghribi', 'price': 200},
-            'b': {'ar': 'ⵜⵉⵛⵉⵔⵜ ⴷⵉⵍ ⵎⵖⵔⴱⵉⵢⴰ', 'fr': 'Tichirt Dl Maghribiya', 'price': 100},
-            'c': {'ar': 'ⵊⴰⴽⵉⵜ ⵏ ⵍⴱⵔⵔⴰⴷ', 'fr': 'Jakett n Lbrrad', 'price': 350},
-            'd': {'ar': 'ⵙⴱⴰⵜⵉ ⴱⵍⵎⴰ', 'fr': 'Ssbati Blma', 'price': 280},
-            'e': {'ar': 'ⴼⵙⵜⴰⵏ ⵜⵔⴽⵉ', 'fr': 'Fstan Tarki', 'price': 250},
-            'f': {'ar': 'ⴱⵍⵣⴰ ⴷⵉⵍ ⵛⵔⴱⵉⵍ', 'fr': 'Blouza Dl Chrbil', 'price': 180},
-            'g': {'ar': 'ⵛⵓⵔⵜ ⵏ ⵙⵜⵉⵍ ⵎⵖⵔⴱⵉ', 'fr': 'Short n Stil Maghribi', 'price': 120},
-            'h': {'ar': 'ⴽⵄⴱ ⵏ ⵍⵄⵉⴷ', 'fr': 'K3ab n L3id', 'price': 220}
+            'a': {'ar': 'سروال جينز مغربي', 'fr': 'Jean Marocain', 'price': 200},
+            'b': {'ar': 'تيشيرت ديال المغربية', 'fr': 'T-shirt Marocain', 'price': 100},
+            'c': {'ar': 'جاكيت ديال البرد', 'fr': 'Veste d hiver', 'price': 350},
+            'd': {'ar': 'سباطي بلما', 'fr': 'Chaussures sport', 'price': 280},
+            'e': {'ar': 'فستان تركي', 'fr': 'Robe Turque', 'price': 250},
+            'f': {'ar': 'بلوزة ديال الشربيل', 'fr': 'Chemisier brodé', 'price': 180},
+            'g': {'ar': 'شورت ديال ستايل مغربي', 'fr': 'Short style marocain', 'price': 120},
+            'h': {'ar': 'كعب ديال العيد', 'fr': 'Talons de fête', 'price': 220}
         }
         
-        # 🇲🇦 الكلمات المغربية المميزة
+        # 🇲🇦 الكلمات المغربية المميزة (بدون تيفيناغ)
         self.darija_patterns = {
             'greeting': {
-                'ar': ['سلام', 'السلام', 'salam', 'slm', 'ⵙⵍⴰⵎ', 'ⴰⵀⵍⴰⵏ', 'ⴱⵙⵍⵎⴰ', 'ⵍⴰⴱⴰⵙ', 'ⵡⴰⵛⴰⵍⴽ', 'ⴱⵏⴰⵎ'],
+                'ar': ['سلام', 'السلام', 'salam', 'slm', 'أهلا', 'بسلامة', 'لاباس', 'واشالك', 'بنعمة'],
                 'fr': ['salam', 'slm', 'labas', 'cv', 'bien', 'hello', 'hi', 'bnjrn']
             },
             'browsing': {
-                'ar': ['1', 'واحد', 'ⵡⴰⵀⴷ', 'ⵍⵃⵡⴰⵢⴰⵊ', 'ⵃⵡⴰⵢⴰⵊ', 'ⵛⵡⵉⵢⴰ', 'رجال', 'ⵉⵔⴳⴰⵣⵏ', 'نساء', 'ⵉⵙⴽⵜⵓⵔⵏ', 'عيالات', 'سروال', 'ⵙⵔⵡⴰⵍ', 'جينز', 'تيشيرت', 'ⵜⵉⵛⵉⵔⵜ', 'سبادري', 'ⵙⴱⴰⵜⵉ', 'حذاء'],
+                'ar': ['1', 'واحد', 'الحوايج', 'هوايج', 'شوية', 'رجال', 'نساء', 'عيالات', 'سروال', 'جينز', 'تيشيرت', 'سباطي', 'حذاء'],
                 'fr': ['1', 'wahd', 'l7wayj', '7wayj', 'chwiya', 'rjal', 'nsa', '3yalat', 'sserwal', 'jeans', 'tichirt', 'ssbati']
             },
             'pricing': {
-                'ar': ['3', 'ثلاثة', 'ⵜⵍⴰⵜⴰ', 'بشحال', 'ⴱⵛⵃⴰⵍ', 'شحال', 'ⵛⵃⴰⵍ', 'ثمن', 'ⵜⵎⴰⵏ', 'سعر', 'ⵙⵉⵔ', 'prix', 'combien', 'ⴽⵓⵎⴱⵢⴰⵏ', 'تخفيض', 'ⵜⵅⵙⵉⵙ', 'promo', 'soldes', 'غالي', 'ⵖⴰⵍⵉ'],
+                'ar': ['3', 'ثلاثة', 'بشحال', 'شحال', 'ثمن', 'سعر', 'prix', 'combien', 'تخفيض', 'promo', 'soldes', 'غالي'],
                 'fr': ['3', 'tlata', 'bch7al', 'ch7al', 'taman', 'ssir', 'combien', 'promo', 'solde', 'ghali']
             },
             'delivery': {
-                'ar': ['4', 'أربعة', 'ⵔⴱⵄⴰ', 'توصيل', 'ⵜⵜⵓⵚⵍⵉⵍ', 'livraison', 'شحون', 'ⵛⵃⵓⵏ', 'واش كتصيفطو', 'ⵡⴰⵛ ⴽⵜⵚⵢⴼⵟⵓ', 'شحال كتعطل', 'ⵛⵃⴰⵍ ⴽⵜⵄⵟⵍ', 'فين المحل', 'ⴼⵉⵏ ⵍⵎⵃⵍ', 'local', 'magasin', 'واش فابور', 'ⵡⴰⵛ ⴼⴰⴱⵓⵔ'],
+                'ar': ['4', 'أربعة', 'توصيل', 'livraison', 'شحون', 'واش كتصيفطو', 'شحال كتعطل', 'فين المحل', 'local', 'magasin', 'واش فابور'],
                 'fr': ['4', 'rb3a', 'touslil', 'livraison', 'ch7oun', 'wach ktsyefto', 'ch7al kt3etel', 'fin lm7el', 'wach fabour']
             },
             'ordering': {
-                'ar': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'بغيت', 'ⴱⵖⵉⵜ', 'أريد', 'نبدي', 'ⵏⴱⴷⵉ', 'كوموند', 'commande', 'شريت', 'ⵛⵔⵉⵜ', 'acheter', 'سروال كحل', 'ⵙⵔⵡⴰⵍ ⴽⵃⵍ'],
+                'ar': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'بغيت', 'أريد', 'نبدي', 'كوموند', 'commande', 'شريت', 'acheter', 'سروال كحل'],
                 'fr': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'bghit', 'b7al', '3ndi', 'nbeddi', 'chrit']
             },
             'support': {
-                'ar': ['مشكل', 'ⵎⵛⴽⵍ', 'مشكلة', 'probleme', 'عندي مشكل', 'ⵄⵏⴷⵉ ⵎⵛⴽⵍ', 'بغيت نهضر مع بنادم', 'ⴱⵖⵉⵜ ⵏⵀⴹⵔ ⵎⵄⴰ ⴱⵏⴰⴷⵎ', 'human', 'جاوبني', 'ⵊⴰⵡⴱⵏⵉ', 'reponds', 'القياس', 'ⵍⵇⵢⴰⵙ', 'taille', 'size', 'بغيت نرجع', 'ⴱⵖⵉⵜ ⵏⵔⵊⴰⵄ', 'retour', 'واش كاين', 'ⵡⴰⵛ ⴽⴰⵢⵏ'],
+                'ar': ['مشكل', 'مشكلة', 'probleme', 'عندي مشكل', 'بغيت نهضر مع بنادم', 'human', 'جاوبني', 'reponds', 'القياس', 'taille', 'size', 'بغيت نرجع', 'retour', 'واش كاين'],
                 'fr': ['mchkil', '3ndi mchkil', 'bghit nhder m3a bnadm', 'jawbni', 'l9yas', 'bghit nrja3', 'wach kayn']
             },
             'closing': {
-                'ar': ['شكرا', 'ⵛⵓⴽⵔⴰⵏ', 'merci', 'الله يحفظك', 'ⴰⵍⵍⴰⵀ ⵢⵃⴼⴹⴽ', 'صافي', 'ⵚⴰⴼⵉ', 'safi', 'ok', 'd\'accord', 'بسلامة', 'ⴱⵙⵍⴰⵎⴰ', 'bye', 'ⵜⵎⴰⵎ'],
+                'ar': ['شكرا', 'merci', 'thanks', 'الله يحفظك', 'صافي', 'safi', 'ok', 'd\'accord', 'بسلامة', 'bye', 'تمام'],
                 'fr': ['chokran', 'mrc', 'allah yhfedk', 'safi', 'ok', 'd\'accord', 'bslama', 'tamam']
             }
         }
         
-        # 🇲🇦 الردود المغربية العفوية
+        # 🇲🇦 الردود المغربية العفوية (بدون تيفيناغ)
         self.spontaneous_responses = {
             'ar': [
-                "ⵡⴰⵀⴰ ⵣⵉⵏⵏ! ⵏⵛⴰⵍⵍⴰⵀ ⵄⵍⵉⴽ! 😄",
-                "ⵉⵍⵍⴰ ⵙⵉ ⵎⴰⵢⵎⵏⵜⵛ ⵎⵖⵔⴱⵉ! 🇲🇦",
-                "ⴷⴰⵢⵎⴰ ⵏⵖⵢⵢⵎⵓ ⵍⴽ! 💪",
-                "ⵀⵢⴰ ⵙⵉ ⵎⵏ ⵍⴱⵍⴰⴷ! 😎",
-                "ⵡⴰⵍⵍⴰⵀ ⵏⵛⴰⵍⵍⴰⵀ! ⵎⴰⵢⴽⵍⵛⵛ ⵡⴰⵍⵓ! 🙏"
+                "واها زوين! ان شاء الله عليك! 😄",
+                "الله ما يمتناش مغربي! 🇲🇦",
+                "دايما نغييموك! 💪",
+                "هيا سي من البلاد! 😎",
+                "والله ان شاء الله! ما يكلش والو! 🙏"
             ],
             'fr': [
-                "Waha zine! Nchallah 3lik! 😄",
-                "Illa si maymntch Maghribi! 🇲🇦",
-                "Dayma nghyyemo lik! 💪",
+                "Waha zwin! Inchallah 3lik! 😄",
+                "Allah ma yemtnach Maghribi! 🇲🇦",
+                "Dayma nghaymouk! 💪",
                 "Hya si mn lblad! 😎",
-                "Wallah nchallah! Maykllch walou! 🙏"
+                "Wallah inchallah! Ma ykellch walou! 🙏"
             ]
         }
         
@@ -132,12 +144,8 @@ class WhatsAppBot:
         self.user_context = {}  # لتخزين سياق المحادثة
     
     def detect_language(self, text: str) -> str:
-        """اكتشاف لغة النص مع التركيز على الدارجة"""
+        """اكتشاف لغة النص (عربية أو فرنسية فقط)"""
         arabic_pattern = re.compile('[\u0600-\u06FF]')
-        tifinagh_pattern = re.compile('[\u2D30-\u2D7F]')
-        
-        if tifinagh_pattern.search(text):
-            return 'ar'  # نعتبر التيفيناغ عربية
         if arabic_pattern.search(text):
             return 'ar'
         return 'fr'
@@ -199,9 +207,9 @@ class WhatsAppBot:
             return response + spontaneous
         
         elif intent == 'browsing':
-            if any(word in message_lower for word in ['1', 'رجال', 'rjal', 'ⵉⵔⴳⴰⵣⵏ', 'homme', 'male']):
+            if any(word in message_lower for word in ['1', 'رجال', 'rjal', 'homme', 'male']):
                 response = self.responses['men_collection'][lang]
-            elif any(word in message_lower for word in ['2', 'نساء', 'nsa', 'ⵉⵙⴽⵜⵓⵔⵏ', 'femme', 'women']):
+            elif any(word in message_lower for word in ['2', 'نساء', 'nsa', 'femme', 'women']):
                 response = self.responses['women_collection'][lang]
             else:
                 response = self.responses['greeting'][lang]
@@ -228,19 +236,19 @@ class WhatsAppBot:
                 if lang == 'ar':
                     city_response = f"\n\n📍 نعم كنديرو التوصيل ل{city_found}!"
                     if 'كازا' in city_found or 'الدار البيضاء' in city_found:
-                        city_response += " ⵜⵜⵓⵚⵍⵉⵍ ⵎⴳⵔⴰⵏⵉ ⵍⴽ!"
+                        city_response += " التوصيل مجاني لك!"
                     elif 'رباط' in city_found:
-                        city_response += " ⵍⵜⵜⵓⵚⵍⵉⵍ ⵎⴳⵔⴰⵏⵉ ⵄⵍⵉⴽ!"
+                        city_response += " التوصيل مجاني عليك!"
                     else:
-                        city_response += " ⵜⵜⵓⵚⵍⵉⵍ ⴱ20 ⴷⵔⵀⵎ ⵙⵉⵔ ⵣⵡⵉⵏ!"
+                        city_response += " التوصيل ب20 درهم سير زوين!"
                 else:
                     city_response = f"\n\n📍 Oui on livre à {city_found}!"
                     if 'casa' in city_found.lower():
                         city_response += " Livraison gratuite!"
                     elif 'rabat' in city_found.lower():
-                        city_response += " Livraison mgrani!"
+                        city_response += " Livraison gratuite!"
                     else:
-                        city_response += " Livraison b 20 DH sir zwine!"
+                        city_response += " Livraison à 20 DH!"
                 
                 base_response += city_response
             
@@ -259,17 +267,17 @@ class WhatsAppBot:
         elif intent == 'contact_info':
             # إذا أرسل معلومات اتصال بدون طلب مسبق
             if lang == 'ar':
-                return "ⵛⵓⴽⵔⴰⵏ ⵄⵍⴰ ⵎⵄⵍⵓⵎⴰⵜⴽ! 📝\n\nⵡⴰⵍⴰⴽⵉⵏ ⴽⵢⵏ ⴱⵍⵉ ⵎⴰ ⵣⴰⴷⵜⵉ ⵎⴰ ⵜⵉⵅⵜⴰⵔ ⵛⵉ ⵃⴰⵊⴰ ⵎⵏ ⵍⵇⴰⵢⵎⵓⵏ. ⵍⵎⵔⵊⵄ ⵜⵉⵅⵜⴰⵔ ⵃⴰⵊⴰ ⵡⵍⴰ ⵜⵙⵙⵏⴷ ⵎⵄⵍⵓⵎⴰⵜ ⵍⵜⵜⵓⵚⵍⵉⵍ."
+                return "شكراً على معلوماتك! 📝\n\nولكن كيما تبدلاتي ما تخترتيش شي حاجة من القايمونة. المرجوع تختاري حاجة ولا تساند معلومات التوصيل."
             else:
-                return "Chokran 3la ma3lomatk! 📝\n\nWalakin kayn bli mazadti machi tkhtar chi haja mn lkaymun. Lmerja3 tkhtar haja wla tsnd ma3lomat ttouslil."
+                return "Merci pour vos informations! 📝\n\nMais comme vous avez changé, vous n'avez pas choisi quelque chose du menu. Le retour, vous choisissez quelque chose ou vous envoyez les informations de livraison."
         
         else:
             # إذا لم يتم التعرف على النية
             base_response = self.responses['greeting'][lang]
             if lang == 'ar':
-                additional = "\n\nⵙⵎⵃⵜⵉ ⵎⴰ ⴼⵀⵎⵜⵛⵀ! ⵣⵉⴷ ⵙⵓⴰⵍⴽ ⵡⵍⴰ ⵉⴽⵜⴱ ⵎⵔⵔⵜ ⵅⵕⴰ!"
+                additional = "\n\nسمحتي ما فهمتش! زيد سؤالك ولا اكتب مرة أخرى!"
             else:
-                additional = "\n\nSm7ti ma fhemtch! Zid soualak wla kteb mrrta khra!"
+                additional = "\n\nDésolé je n'ai pas compris! Ajoutez votre question ou écrivez à nouveau!"
             
             spontaneous = self.get_moroccan_style_response(lang)
             return base_response + additional + spontaneous
@@ -289,9 +297,9 @@ class WhatsAppBot:
             if not product_code or product_code not in self.products:
                 logger.warning(f"❌ رمز المنتج غير صحيح: {product_code}")
                 if lang == 'ar':
-                    return "❌ ⵎⴰ ⵜⵉⵜⵇⵔⵔⵏⵛ ⵍⵍⵉ ⵜⵍⴱⵜⵉ!\n\n📋 ⵍⵎⵔⵊⵄ ⵜⵉⵅⵜⴰⵔ ⵍⵉⴳⵔⴰⵎ ⵎⵏ ⵍⵇⴰⵢⵎⵓⵏ:\nA, B, C, D ⵍⵉⵔⴳⴰⵣⵏ\nE, F, G, H ⵍⵉⵙⴽⵜⵓⵔⵏ"
+                    return "❌ ما تعرفتوش على لي طلبتي!\n\n📋 المرجوع تختار حرف من القايمونة:\nA, B, C, D للرجال\nE, F, G, H للنساء"
                 else:
-                    return "❌ Ma tetqerrnch lli tlbati!\n\n📋 Lmerja3 tkhtar lgram mn lkaymun:\nA, B, C, D l Irgazn\nE, F, G, H l Iskturn"
+                    return "❌ Je n'ai pas reconnu ce que vous avez demandé!\n\n📋 Veuillez choisir une lettre du menu:\nA, B, C, D pour Homme\nE, F, G, H pour Femme"
             
             # استخراج الكمية
             quantity = 1
@@ -315,87 +323,87 @@ class WhatsAppBot:
             logger.info(f"✅ تم حفظ طلب من {sender_phone}: {product['ar']} x {quantity} = {total} درهم")
             
             if lang == 'ar':
-                return f"""✅ ⵜⵎ ⵜⵙⵊⵉⵍ ⵜⵉⵅⵜⵉⵔⴰⴽ!
+                return f"""✅ تم تسجيل اختيارك!
 
-📦 ⵍⵃⴰⵊⴰ: {product['ar']}
-🔢 ⵍⵇⵜⵉⵢⴰ: {quantity}
-💰 ⵍⵎⴳⵎⵓⵄ: {total} ⴷⵔⵀⵎ
+📦 الحاجة: {product['ar']}
+🔢 الكمية: {quantity}
+💰 المجموع: {total} درهم
 
-⬇️ *ⵄⴰⵛ ⵜⴽⵎⵍ ⵍⵜⵍⴰⴱⴰ، ⵙⵙⵏⴷⵍⵏⴰ ⴷⴰⴱⴰ:*
-👤 ⵍⵉⵙⵎ ⵍⴽⴰⵎⵍ
-📍 ⵍⵄⵏⵡⴰⵏ ⵎⴼⵚⵚⵍ (ⵛⵢⴰⵄ، ⵃⵉ، ⵍⵎⴷⵉⵏⴰ)
-📞 ⵕⵇⵎ ⵍⵜⵍⵉⴼⵓⵏ ⵍⵍⵉ ⵏⵜⵡⵙⵍⵓ ⴱⵀ
+⬇️ *عاش تكمل الطلببة، ساندلنا دابا:*
+👤 الاسم الكامل
+📍 العنوان المفصل (الشارع، الحي، المدينة)
+📞 رقم التلفون لي نتوصلو به
 
-ⵖⴰⴷⵉ ⵏⵡⵙⵍⵓ ⴱⴽ ⵍⵜⴰⵢⵉⴽⵉⴷ ⵏⵉⵀⴰⵢⵉ! 📞"""
+غادي نوصلو بيك للتأكيد النهائي! 📞"""
             else:
-                return f"""✅ Tm tsjil tkhtirak!
+                return f"""✅ Choix enregistré!
 
-📦 Lhaja: {product['fr']}
-🔢 L9tiya: {quantity}
-💰 Lmgmu3: {total} DH
+📦 Produit: {product['fr']}
+🔢 Quantité: {quantity}
+💰 Total: {total} DH
 
-⬇️ *3ach tkeml tlaba, ssendlna daba:*
-👤 Lism lkamel
-📍 L3nwan mfssel (chi3a, 7i, lmdina)
-📞 Rqem ltelfoun lli ntweslo bh
+⬇️ *Pour compléter la commande, envoyez-nous:*
+👤 Nom complet
+📍 Adresse détaillée (Rue, Quartier, Ville)
+📞 Numéro de téléphone
 
-Ghadi nweslo bk ltaykid nihayi! 📞"""
+Nous vous contacterons pour confirmation finale! 📞"""
         
         except Exception as e:
             logger.error(f"💥 خطأ في معالجة الطلب: {str(e)}")
             if lang == 'ar':
-                return "ⵙⵎⵃⵜⵉ ⵎⴰ ⵜⵎⵛⵉⵜⵛ ⵍⵜⵍⴰⴱⴰ! ⵣⵉⴷ ⵎⵔⵔⵜ ⵅⵕⴰ."
+                return "سمحتي ما تمشيتش الطلببة! زيد مرة أخرى."
             else:
-                return "Sm7ti ma tmchitch tlaba! Zid mrrta khra."
+                return "Désolé, la commande n'a pas fonctionné! Réessayez."
     
     def handle_support(self, message: str, lang: str, sender_phone: str) -> str:
         """معالجة طلبات الدعم بإسلوب مغربي"""
         if 'human' in message.lower() or 'بنادم' in message or 'bdem' in message:
             if lang == 'ar':
-                return """🆘 *ⵍⵎⵔⴽⵣ ⵏ ⵍⵎⵙⴰⵄⴷⴰ*
+                return """🆘 *مركز المساعدة*
 
-ⵍⵍⵉⵜⵙⴰⵍ ⴱⵎⵎⵜⵍ ⵖⵚⵚ ⵏ ⵍⵎⵙⴰⵄⴷⴰ:
+للإتصال بممثل خدمة العملاء:
 📞 0522-123456
 
-ⵡⵍⴰ ⵔⴰⵙⵍⵏⴰ ⵄⵍⴰ:
+أو راسلنا على:
 📧 support@moujib.ma
 
-ⵙⴰⵄⴰⵜ ⵍⵅⴷⵎⴰ:
-⏰ 9:00 - 18:00 (ⵍⵉⵜⵏⵉⵏ - ⵍⵉⵙⵙⴱⵜ)
+ساعات الخدمة:
+⏰ 9:00 - 18:00 (الإثنين - السبت)
 
-ⵍⵍⵉⵙⵜⵉⴼⵙⴰⵔⴰⵜ ⵍⴼⵓⵔⵉⵢⴰ، ⵉⴽⵜⴱ ⵙⵓⴰⵍⴽ ⵡⵖⴰⴷⵉ ⵏⵙⴰⵄⴷⵓⴽ!"""
+للاستفسارات الفورية، اكتب سؤالك وغادي نعاونوك!"""
             else:
-                return """🆘 *Lmerkez n lmsa3da*
+                return """🆘 *Centre d'Aide*
 
-L litsal b mmtel ghss n lmsa3da:
+Pour contacter un représentant:
 📞 0522-123456
 
-Wla rasselna 3la:
+Ou écrivez-nous à:
 📧 support@moujib.ma
 
-Sa3at lkhdma:
-⏰ 9:00 - 18:00 (Litnin - Lissbt)
+Heures d'ouverture:
+⏰ 9:00 - 18:00 (Lundi - Samedi)
 
-L listifssarat lforiya, kteb soualak wghadi nsa3dok!"""
+Pour des questions immédiates, écrivez votre question et nous vous aiderons!"""
         else:
             if lang == 'ar':
-                return "ⵛⵏⵅⵍⴼ ⵏⵙⴰⵄⴷⵓⴽ ⵄⵍⴰ ⵎⵛⴽⵍⴽ! 💪\n\nⵙⵎⵃⵜⵉ ⵍⵉⴰ ⵜⵇⴷⵔ ⵜⵙⵎⵄⵏⵉ ⵛⵏⵅⵍⴼ ⵎⴰ ⵜⵉⵙⵜⴰⵄⵊⵍⵛ ⵄⵍⵉⴽ?\n\nⵡⵍⴰ ⵔⴰⵙⵍ ⵙⵓⴰⵍⴽ ⵎⵔⵔⵜ ⵅⵕⴰ ⵡⵖⴰⴷⵉ ⵏⴼⵔⵎⵓⵀ ⵍⵉⴽ!"
+                return "تشانقلو نعاونوك على مشكلتك! 💪\n\nسمحتي ليًا تقدر تسمعني تشانقلو ما تستعجلش عليك?\n\nولا راسل سؤالك مرة أخرى وغادي نفهموه لك!"
             else:
-                return "Chnkhlf nsa3dok 3la mchkilk! 💪\n\nSm7ti lia tqdr tsma3ni chnkhlf mwa tist3jlch 3lik?\n\nWla rassel soualk mrrta khra wghadi nfrmoh lik!"
+                return "On va vous aider avec votre problème! 💪\n\nDésolé si vous pouvez m'écouter, on va vous aider, ne vous inquiétez pas?\n\nOu envoyez votre question à nouveau et on va la comprendre pour vous!"
     
     def handle_closing(self, message: str, lang: str, sender_phone: str) -> str:
         """معالجة نهاية المحادثة بإسلوب مغربي"""
         if lang == 'ar':
             responses = [
-                "ⵛⵓⴽⵔⴰⵏ ⵄⵍⵉⴽ! 🙏\n\nⵏⵛⴰⵍⵍⴰⵀ ⵜⴱⵇⴰ ⵍⵉⵎⵜⵉⵀⴰⵏ ⵎⵄⴰ ⵍⴽ! ⵎⴰ ⵜⵙⵎⵄⵛ ⵙⵉ ⵃⴰⵊⴰ ⵎⵏ ⵖⴷⵉ! 🇲🇦\n\nⵎⵄⴰ ⵙⵙⵍⴰⵎⴰ 👋",
-                "ⵍⵍⴰⵀ ⵉⵀⴼⴹⵏⵉ ⵡⵉⴰⵍⵉⴽ! 🤲\n\nⵜⵎⴰⵎ ⵏⵛⴰⵍⵍⴰⵀ ⵜⴱⵇⴰ ⵍⵉⵎⵜⵉⵀⴰⵏ! ⵎⴰ ⵜⵙⵎⵄⵛ ⵙⵉ ⵃⴰⵊⴰ ⵏⵖⵢⵢⵎⵓ ⵍⵉⴽ! 💪\n\nⴱⵙⵍⵎⴰ ⵖⴰ ⵜⵎⴰⵎ 👋",
-                "ⵛⵓⴽⵔⴰⵏ ⴱⵣⴰⴼ! 😊\n\nⵏⵛⴰⵍⵍⴰⵀ ⵜⴱⵇⴰ ⵍⵉⵎⵜⵉⵀⴰⵏ ⵎⵄⴰ ⵍⴽ! ⵎⴰ ⵜⵙⵎⵄⵛ ⵙⵉ ⵃⴰⵊⴰ ⵏⵖⵢⵢⵎⵓ ⵍⵉⴽ! 🙏\n\nⵎⵄⴰ ⵙⵙⵍⴰⵎⴰ ⵖⴰ ⵜⵎⴰⵎ 👋"
+                "شكراً عليك! 🙏\n\nان شاء الله تبقى ليمتيحان معاك! ما تسمعش شي حاجة من غادي! 🇲🇦\n\nمع السلامة 👋",
+                "الله يحفظني وإياك! 🤲\n\nتمام ان شاء الله تبقى ليمتيحان! ما تسمعش شي حاجة نغييموك! 💪\n\nبسلامة 👋",
+                "شكراً بزاف! 😊\n\nان شاء الله تبقى ليمتيحان معاك! ما تسمعش شي حاجة نغييموك! 🙏\n\nمع السلامة 👋"
             ]
         else:
             responses = [
-                "Chokran bzzaf! 🙏\n\nNchallah tbqa limtihan m3ak! Ma tsma3ch si haja mn ghdi! 🇲🇦\n\nM3a ssalama 👋",
-                "Allah yhfedni wialik! 🤲\n\nTamam nchallah tbqa limtihan! Ma tsma3ch si haja nghyyemo lik! 💪\n\nBslama gha tamam 👋",
-                "Mrc bcp! 😊\n\nNchallah tbqa limtihan m3ak! Ma tsma3ch si haja nghyyemo lik! 🙏\n\nM3a ssalama gha tamam 👋"
+                "Merci à vous! 🙏\n\nInchallah vous restez satisfait! N'écoutez rien pour plus tard! 🇲🇦\n\nAu revoir 👋",
+                "Allah me protège et vous! 🤲\n\nParfait inchallah vous restez satisfait! N'écoutez rien on vous aide! 💪\n\nSalut 👋",
+                "Merci beaucoup! 😊\n\nInchallah vous restez satisfait avec nous! N'écoutez rien on vous aide! 🙏\n\nAu revoir 👋"
             ]
         
         return random.choice(responses)
@@ -411,27 +419,27 @@ L listifssarat lforiya, kteb soualak wghadi nsa3dok!"""
             if not order_info:
                 logger.error(f"❌ لا توجد جلسة للمستخدم {sender_phone}")
                 if lang == 'ar':
-                    return "ⵙⵎⵃⵜⵉ ⵎⴰ ⵜⵎⵛⵉⵜⵛ ⵍⵜⵍⴰⴱⴰ! ⵣⵉⴷ ⵎⵔⵔⵜ ⵅⵕⴰ."
+                    return "سمحتي ما تمشيتش الطلببة! زيد مرة أخرى."
                 else:
-                    return "Sm7ti ma tmchitch tlaba! Zid mrrta khra."
+                    return "Désolé, la commande n'a pas fonctionné! Réessayez."
             
             # 2. إنشاء رسالة الإشعار للبائع
             product = order_info.get('product', {})
             quantity = order_info.get('quantity', 1)
             total = order_info.get('total', 0)
             
-            notify_text = f"""🚨 *ⵜⵍⴰⴱⴰ ⵎⵥⵉⴷⴰ!*
+            notify_text = f"""🚨 *طلبية جديدة!*
 
-📞 ⵍⵄⵎⵉⵍ: {sender_phone}
-📝 ⵍⵎⵄⵍⵓⵎⴰⵜ ⵍⵎⵇⴷⵎⴰ:
+📞 العميل: {sender_phone}
+📝 المعلومات المقدمة:
 {message}
 
-🛒 *ⵜⴼⵚⵉⵍ ⵍⵜⵍⴰⴱⴰ:*
-📦 ⵍⵃⴰⵊⴰ: {product.get('ar', 'ⵎⴰ ⵜⵉⵜⵇⵔⵔⵏⵛ')} / {product.get('fr', 'N/A')}
-🔢 ⵍⵇⵜⵉⵢⴰ: {quantity}
-💰 ⵍⵎⴳⵎⵓⵄ: {total} ⴷⵔⵀⵎ
+🛒 *تفاصيل الطلب:*
+📦 المنتج: {product.get('ar', 'غير محدد')} / {product.get('fr', 'N/A')}
+🔢 الكمية: {quantity}
+💰 الإجمالي: {total} درهم
 
-⏰ ⵍⵎⵉⵏ: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
+⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
             
             # 3. إرسال الإشعار للبائع
             logger.info(f"🔄 محاولة إرسال إشعار للبائع على الرقم: {SELLER_PHONE_NUMBER}")
@@ -441,14 +449,14 @@ L listifssarat lforiya, kteb soualak wghadi nsa3dok!"""
                 logger.info(f"🎉 تم إرسال إشعار الطلبية بنجاح للبائع من العميل {sender_phone}")
                 
                 # إرسال تأكيد إضافي للبائع
-                confirm_text = f"✅ ⵜⵎ ⵍⵇⴱⴷ ⵜⵍⴰⴱⴰ ⵎⵥⵉⴷⴰ ⵎⵏ {sender_phone} - ⵍⵎⵔⵊⵄ ⵍⵜⵜⵡⴰⵚⵍ ⵎⵄⴰ ⵍⵄⵎⵉⵍ ⵅⵍⴰⵍ 30 ⴷⵔⵉⵇⴰ"
+                confirm_text = f"✅ تم استلام طلبية جديدة من {sender_phone} - الرجاء التواصل مع العميل خلال 30 دقيقة"
                 send_whatsapp_message(SELLER_PHONE_NUMBER, confirm_text)
                 
             else:
                 logger.error(f"❌ فشل إرسال إشعار الطلبية للبائع من العميل {sender_phone}")
                 
                 # محاولة بديلة: إرسال رسالة مختصرة
-                short_notify = f"🚨 ⵜⵍⴰⴱⴰ ⵎⵥⵉⴷⴰ ⵎⵏ {sender_phone} - ⵍⵃⴰⵊⴰ: {product.get('ar', 'ⵎⴰ ⵜⵉⵜⵇⵔⵔⵏⵛ')} - {total} ⴷⵔⵀⵎ"
+                short_notify = f"🚨 طلبية جديدة من {sender_phone} - المنتج: {product.get('ar', 'غير معروف')} - {total} درهم"
                 send_whatsapp_message(SELLER_PHONE_NUMBER, short_notify)
             
             # 4. تنظيف الجلسة بعد إرسال الإشعار
@@ -460,28 +468,28 @@ L listifssarat lforiya, kteb soualak wghadi nsa3dok!"""
             logger.info(f"📨 إرسال تأكيد للزبون {sender_phone}")
             
             if lang == 'ar':
-                return f"""✅ ⵜⵎ ⵍⵇⴱⴷ ⵎⵄⵍⵓⵎⴰⵜⴽ ⴱⵏⵊⴰⵃ!
+                return f"""✅ تم قبول معلوماتك بنجاح!
 
-📞 ⵖⴰⴷⵉ ⵢⵡⵙⵍⴰ ⴱⴽ ⴼⵔⵉⵇⴰ ⵏⴰ ⵅⵍⴰⵍ 30 ⴷⵔⵉⵇⴰ ⵍⵜⴰⵢⵉⴽⵉⴷ ⵏⵉⵀⴰⵢⵉ ⵏ ⵍⵜⵍⴰⴱⴰ.
+📞 غادي يوصلو بيك فريقنا خلال 30 دقيقة للتأكيد النهائي للطلبية.
 
-ⵛⵓⴽⵔⴰⵏ ⵄⵍⴰ ⵜⵡⵇⵉⵜⴽ ⴱⵏⴰ! 🤝
+شكراً على توقيتك بينا! 🤝
 
 {random.choice(self.spontaneous_responses['ar'])}"""
             else:
-                return f"""✅ Tm lqbd ma3lomatk bnjah!
+                return f"""✅ Informations acceptées avec succès!
 
-📞 Ghadi yweslo bk friqa na khlal 30 driqa ltaykid nihayi n tlaba.
+📞 Notre équipe vous contactera dans 30 minutes pour confirmation finale.
 
-Chokran 3la twqitk bna! 🤝
+Merci de votre temps avec nous! 🤝
 
 {random.choice(self.spontaneous_responses['fr'])}"""
             
         except Exception as e:
             logger.error(f"💥 خطأ في معالجة معلومات الاتصال: {str(e)}")
             if lang == 'ar':
-                return "ⵙⵎⵃⵜⵉ ⵡⵇⵄ ⵎⵛⴽⵍ ⴼⵉ ⵎⵄⴰⵍⵎⵉⵜ ⵎⵄⵍⵓⵎⴰⵜⴽ. ⵍⵎⵔⵊⵄ ⵊⵔⵔ ⵎⵔⵔⵜ ⵅⵕⴰ ⵡⵍⴰ ⵍⵉⵜⵙⴰⵍ ⴱⵏⴰ ⴱⵛⵉⴽⵀ."
+                return "سمحتي وقع مشكل في معالمة معلوماتك. المرجوع جرب مرة أخرى أو الإتصال بينا بشيخة."
             else:
-                return "Sm7ti wq3 mchkil f ma3lmit ma3lomatk. Lmerja3 jerr mrrta khra wla litsal bna bchikh."
+                return "Désolé, un problème est survenu lors du traitement de vos informations. Veuillez réessayer ou nous contacter directement."
 
 # تهيئة البوت
 bot = WhatsAppBot()
@@ -527,7 +535,7 @@ def send_whatsapp_message(to: str, text: str) -> bool:
         logger.error(f"💥 خطأ غير متوقع في الإرسال: {str(e)}")
         return False
 
-# بقية الكود (الويب هوك والرواتب) تبقى كما هي مع تحديث الرسائل
+# بقية الكود (الويب هوك والرواتب) تبقى كما هي
 @app.route('/webhook', methods=['GET'])
 def verify_webhook():
     """المصافحة مع فيسبوك للتحقق من السيرفر"""
@@ -600,56 +608,28 @@ def health_check():
     for phone, session in bot.user_sessions.items():
         active_sessions.append({
             'phone': phone,
-            'product': session.get('product', {}).get('ar', 'ⵎⴰ ⵜⵉⵜⵇⵔⵔⵏⵛ'),
+            'product': session.get('product', {}).get('ar', 'غير معروف'),
             'quantity': session.get('quantity', 1),
             'total': session.get('total', 0),
-            'waiting_since': session.get('timestamp').strftime('%H:%M:%S') if session.get('timestamp') else 'ⵎⴰ ⵜⵉⵜⵇⵔⵔⵏⵛ'
+            'waiting_since': session.get('timestamp').strftime('%H:%M:%S') if session.get('timestamp') else 'غير معروف'
         })
     
     return jsonify({
-        'status': 'ⵎⵔⵜⴰⵀ',
-        'service': 'ⵎⵓⵊⵉⴱ ⴱⵓⵜ',
-        'version': '🇲🇦 ⵎⵖⵔⴱⵉ 100%',
+        'status': 'صحي',
+        'service': 'موجيب بوت',
+        'version': '🇲🇦 مغربي 100%',
         'active_sessions_count': len(bot.user_sessions),
         'active_sessions': active_sessions,
         'seller_number': SELLER_PHONE_NUMBER,
-        'features': ['ⴼⵀⵎ ⵏⵏⵉⵢⴰ', 'ⵜⵉⴼⵉⵏⴰⵖ', 'ⴷⴰⵔⵉⵊⴰ', 'ⵜⵜⵓⵚⵍⵉⵍ ⵎⴳⵔⴰⵏⵉ'],
+        'features': ['دارجة مغربية', 'فرنسية', 'توصيل مجاني'],
         'timestamp': datetime.now().isoformat()
-    }), 200
-
-@app.route('/test-moroccan', methods=['GET'])
-def test_moroccan():
-    """اختبار الردود المغربية"""
-    test_messages = [
-        "سلام",
-        "بشحال سروال الجينز",
-        "واش كتصيفطو ل كازا",
-        "عندي مشكل ف القياس",
-        "شكرا بزاف"
-    ]
-    
-    results = []
-    for msg in test_messages:
-        intent = bot.detect_intent(msg)
-        lang = bot.detect_language(msg)
-        response = bot.process_message(msg, "212600000000")
-        results.append({
-            'message': msg,
-            'intent': intent,
-            'language': lang,
-            'response_preview': response[:100] + "..."
-        })
-    
-    return jsonify({
-        'test_results': results,
-        'moroccan_features': ['دارجة', 'تيفيناغ', 'مدن مغربية', 'ردود عفوية']
     }), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     debug = os.environ.get("DEBUG", "False").lower() == "true"
     
-    logger.info(f"🚀 تشغيل سيرفر ⵎⵓⵊⵉⴱ على المنفذ {port}")
+    logger.info(f"🚀 تشغيل سيرفر موجيب على المنفذ {port}")
     logger.info(f"📞 رقم البائع: {SELLER_PHONE_NUMBER}")
     logger.info(f"🇲🇦 البوت مغربي 100% - جاهز للخدمة!")
     logger.info(f"🔧 وضع التصحيح: {debug}")
