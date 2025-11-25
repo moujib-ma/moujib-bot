@@ -16,7 +16,7 @@ app = Flask(__name__)
 # --- إعدادات واتساب (تم دمج بياناتك) ---
 # ملاحظة: استخدام os.environ.get يجعل الكود آمناً ويعمل على Render
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "moujib_token_secret")
-ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN", "EAAfo3utE4ioBQAbXAqBDuNZBfXRUUhmaBRbM0jp2ZAnwNBZBwzZAWy2u5JBHe4nKoSjGEarEkKFDSxlZBOSw3gZBgjula2MUKgTzEPEmwHj2jJDSUNxFch4UcWFqurWh3LOUf6peNdkq15PzVvutLhrfE0YTkxuZBnGxgZASlZBRAB3m1QNAmyA64jVThGLV1kHcZAEByYYdfMXOHmJZCK7zllOdlSrZBhRhD6NsiZCZA1KeerGKSD5QonZAwBlO3BhSGXgpnZAW9Q3jlW2PNhhiALhFKd8hc1QagAZDZD")
+ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN", "EAAfo3utE4ioBQJ72Y5gkM29CnuSvLVlh3WZBvfKVt5rLLpt8TS15QTW36mLUSZC5Gzg2ZCu7sMDnBHMr5FuDwHuYr9WfASsZAlYIpG06F7pj4tV6e6XdknSMHI6D0YcyuoZB6ptQ4j1prkahIirpDTDPV3ecDWMb3zrwxBeiRgfGiQrfxT2A1CZAZCNZBSZCcAXuk7AZDZD")
 PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "889973017535202")
 VERSION = "v19.0"
 
